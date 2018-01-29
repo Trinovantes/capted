@@ -96,7 +96,7 @@ public:
         // nop
     }
 
-    virtual Node<StringNodeData>* getRoot() {
+    virtual Node<StringNodeData>* getRoot() override {
         std::string rootLabel = getRootLabel(inputString);
         std::vector<std::string> childrenString = getChildrenString(inputString);
 
@@ -116,15 +116,15 @@ public:
 
 class StringCostModel : public CostModel<StringNodeData> {
 public:
-    virtual float deleteCost(Node<StringNodeData>* n) {
+    virtual float deleteCost(Node<StringNodeData>* n) override {
         return 1.0f;
     }
 
-    virtual float insertCost(Node<StringNodeData>* n) {
+    virtual float insertCost(Node<StringNodeData>* n) override {
         return 1.0f;
     }
 
-    virtual float renameCost(Node<StringNodeData>* n1, Node<StringNodeData>* n2) {
+    virtual float renameCost(Node<StringNodeData>* n1, Node<StringNodeData>* n2) override {
         return (n1->getNodeData()->getLabel() == n2->getNodeData()->getLabel()) ? 0.0f : 1.0f;
     }
 };

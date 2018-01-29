@@ -21,7 +21,7 @@ public:
 
     }
 
-    virtual float computeEditDistance(Node<NodeData> t1, Node<NodeData> t2) {
+    virtual float computeEditDistance(Node<NodeData>* t1, Node<NodeData>* t2) override {
 
     }
 };

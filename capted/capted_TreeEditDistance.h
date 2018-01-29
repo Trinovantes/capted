@@ -18,7 +18,7 @@ public:
         this->costModel = costModel;
     }
 
-    virtual float computeEditDistance(Node<NodeData> t1, Node<NodeData> t2) = 0;
+    virtual float computeEditDistance(Node<NodeData>* t1, Node<NodeData>* t2) = 0;
 };
 
 } // namespace capted

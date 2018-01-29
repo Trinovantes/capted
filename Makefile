@@ -2,7 +2,7 @@ print-%: ; @echo $*=$($*)
 
 RM       = rm -f
 CXX      = g++
-CXXFLAGS = -g -std=c++0x
+CXXFLAGS = -g -std=c++11
 EXEC     = test_runner
 
 all: $(EXEC)
