@@ -1,5 +1,5 @@
 #include <iostream>
-#include "stringnode.h"
+#include "capted/capted.h"
 
 using namespace capted;
 using std::cout;

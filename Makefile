@@ -3,15 +3,15 @@ print-%: ; @echo $*=$($*)
 RM       = rm -f
 CXX      = g++
 CXXFLAGS = -g -std=c++0x
-EXEC     = capted
+EXEC     = test_runner
 
 all: $(EXEC)
 
-$(EXEC): main.cpp capted.h stringnode.h
+$(EXEC): main.cpp capted/*.h
 	$(CXX) $(CXXFLAGS) main.cpp -o $(EXEC)
 
 run: all
-	./capted
+	./test_runner
 
 clean:
 	$(RM) $(EXEC) *.o *.d
