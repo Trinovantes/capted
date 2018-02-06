@@ -3,7 +3,7 @@
 #include <cassert>
 #include <iostream>
 #include <sstream>
-#include "capted.h"
+#include "InputParser.h"
 
 namespace capted {
 
@@ -116,15 +116,15 @@ public:
 
 class StringCostModel : public CostModel<StringNodeData> {
 public:
-    virtual float deleteCost(Node<StringNodeData>* n) override {
+    virtual float deleteCost(Node<StringNodeData>* n) const override {
         return 1.0f;
     }
 
-    virtual float insertCost(Node<StringNodeData>* n) override {
+    virtual float insertCost(Node<StringNodeData>* n) const override {
         return 1.0f;
     }
 
-    virtual float renameCost(Node<StringNodeData>* n1, Node<StringNodeData>* n2) override {
+    virtual float renameCost(Node<StringNodeData>* n1, Node<StringNodeData>* n2) const override {
         return (n1->getNodeData()->getLabel() == n2->getNodeData()->getLabel()) ? 0.0f : 1.0f;
     }
 };

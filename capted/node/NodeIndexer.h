@@ -1,0 +1,348 @@
+#pragma once
+
+#include <vector>
+#include "../util/debug.h"
+
+namespace capted {
+
+//------------------------------------------------------------------------------
+// Node Indexer
+//------------------------------------------------------------------------------
+
+/**
+ * Indexes nodes of the input tree to the algorithm that is already parsed to
+ * tree structure using {@link node.Node} class. Stores various indices on
+ * nodes required for efficient computation of APTED [1,2]. Additionally, it
+ * stores single-value properties of the tree.
+ *
+ * <p>For indexing we use four tree traversals that assign ids to the nodes:
+ * <ul>
+ * <li>left-to-right preorder [1],
+ * <li>right-to-left preorder [1],
+ * <li>left-to-right postorder [2],
+ * <li>right-to-left postorder [2].
+ * </ul>
+ *
+ * <p>See the source code for more algorithm-related comments.
+ *
+ * <p>References:
+ * <ul>
+ * <li>[1] M. Pawlik and N. Augsten. Efficient Computation of the Tree Edit
+ *      Distance. ACM Transactions on Database Systems (TODS) 40(1). 2015.
+ * <li>[2] M. Pawlik and N. Augsten. Tree edit distance: Robust and memory-
+ *      efficient. Information Systems 56. 2016.
+ * </ul>
+ *
+ * @param <D> type of node data.
+ * @param <C> type of cost model.
+ * @see node.Node
+ * @see parser.InputParser
+ */
+
+template <class NodeData>
+class AllPossibleMappings;
+
+template <class NodeData>
+class Capted;
+
+template<class NodeData>
+class NodeIndexer {
+private:
+    typedef Node<NodeData> N;
+
+    friend AllPossibleMappings<NodeData>;
+    friend Capted<NodeData>;
+
+    const CostModel<NodeData>* costModel;
+    const int treeSize;
+
+    // Structure indices
+    std::vector<int> sizes;
+    std::vector<int> parents;
+    std::vector<std::vector<int>> children;
+
+    std::vector<int> postL_to_lld;
+    std::vector<int> postR_to_rld;
+    std::vector<int> preL_to_ln;
+    std::vector<int> preR_to_ln;
+
+    std::vector<N*> preL_to_node;
+    std::vector<bool> nodeType_L;
+    std::vector<bool> nodeType_R;
+
+    // Traversal translation indices
+    std::vector<int> preL_to_preR;
+    std::vector<int> preR_to_preL;
+    std::vector<int> preL_to_postL;
+    std::vector<int> preL_to_postR;
+    std::vector<int> postL_to_preL;
+    std::vector<int> postR_to_preL;
+
+    // Cost indices
+    std::vector<int> preL_to_kr_sum;
+    std::vector<int> preL_to_rev_kr_sum;
+    std::vector<int> preL_to_desc_sum;
+    std::vector<float> preL_to_sumDelCost;
+    std::vector<float> preL_to_sumInsCost;
+
+    // Temp variables
+    int currentNode;
+    int lchl;
+    int rchl;
+    int sizeTmp;
+    int descSizesTmp;
+    int krSizesSumTmp;
+    int revkrSizesSumTmp;
+    int preorderTmp;
+
+    int indexNodes(N* node, int postorder) {
+        // Initialise variables.
+        int currentSize = 0;
+        int childrenCount = 0;
+        int descSizes = 0;
+        int krSizesSum = 0;
+        int revkrSizesSum = 0;
+        int preorder = preorderTmp;
+        int preorderR = 0;
+        int currentPreorder = -1;
+
+        // Store the preorder id of the current node to use it after the recursion.
+        preorderTmp++;
+
+        // Loop over children of a node.
+        std::vector<N*> &childNodes = node->getChildren();
+        for (int i = 0; i < childNodes.size(); i++) {
+            childrenCount++;
+            currentPreorder = preorderTmp;
+            parents[currentPreorder] = preorder;
+
+            // Execute method recursively for next child.
+            postorder = indexNodes(childNodes[i], postorder);
+            children[preorder].push_back(currentPreorder);
+
+            currentSize += 1 + sizeTmp;
+            descSizes += descSizesTmp;
+
+            if(childrenCount > 1) {
+                krSizesSum += krSizesSumTmp + sizeTmp + 1;
+            } else {
+                krSizesSum += krSizesSumTmp;
+                nodeType_L[currentPreorder] = true;
+            }
+
+            if (i < childNodes.size() - 1) {
+                revkrSizesSum += revkrSizesSumTmp + sizeTmp + 1;
+            } else {
+                revkrSizesSum += revkrSizesSumTmp;
+                nodeType_R[currentPreorder] = true;
+            }
+        }
+
+        postorder++;
+
+        int currentDescSizes = descSizes + currentSize + 1;
+        preL_to_desc_sum[preorder] = ((currentSize + 1) * (currentSize + 1 + 3)) / 2 - currentDescSizes;
+        preL_to_kr_sum[preorder] = krSizesSum + currentSize + 1;
+        preL_to_rev_kr_sum[preorder] = revkrSizesSum + currentSize + 1;
+
+        // Store pointer to a node object corresponding to preorder.
+        preL_to_node[preorder] = node;
+
+        sizes[preorder] = currentSize + 1;
+        preorderR = treeSize - 1 - postorder;
+        preL_to_preR[preorder] = preorderR;
+        preR_to_preL[preorderR] = preorder;
+
+        descSizesTmp = currentDescSizes;
+        sizeTmp = currentSize;
+        krSizesSumTmp = krSizesSum;
+        revkrSizesSumTmp = revkrSizesSum;
+
+        postL_to_preL[postorder] = preorder;
+        preL_to_postL[preorder] = postorder;
+        preL_to_postR[preorder] = treeSize-1-preorder;
+        postR_to_preL[treeSize-1-preorder] = preorder;
+
+        return postorder;
+    }
+
+    void postTraversalIndexing() {
+        int currentLeaf = -1;
+        int nodeForSum = -1;
+        int parentForSum = -1;
+
+        for(int i = 0; i < treeSize; i++) {
+            preL_to_ln[i] = currentLeaf;
+            if(isLeaf(i)) {
+                currentLeaf = i;
+            }
+
+            // This block stores leftmost leaf descendants for each node
+            // indexed in postorder. Used for mapping computation.
+            // Added by Victor.
+            int postl = i; // Assume that the for loop iterates postorder.
+            int preorder = postL_to_preL[i];
+            if (sizes[preorder] == 1) {
+                postL_to_lld[postl] = postl;
+            } else {
+                postL_to_lld[postl] = postL_to_lld[preL_to_postL[children[preorder][0]]];
+            }
+            // This block stores rightmost leaf descendants for each node
+            // indexed in right-to-left postorder.
+            // [TODO] Use postL_to_lld and postR_to_rld instead of APTED.getLLD
+            //        and APTED.gerRLD methods, remove these method.
+            //        Result: faster lookup of these values.
+            int postr = i; // Assume that the for loop iterates reversed postorder.
+            preorder = postR_to_preL[postr];
+            if (sizes[preorder] == 1) {
+                postR_to_rld[postr] = postr;
+            } else {
+                postR_to_rld[postr] = postR_to_rld[preL_to_postR[children[preorder][children[preorder].size() - 1]]];
+            }
+            // Count lchl and rchl.
+            // [TODO] There are no values for parent node.
+            if (sizes[i] == 1) {
+                int parent = parents[i];
+                if (parent > -1) {
+                    if (parent+1 == i) {
+                        lchl++;
+                    } else if (preL_to_preR[parent]+1 == preL_to_preR[i]) {
+                        rchl++;
+                    }
+                }
+            }
+
+            // Sum up costs of deleting and inserting entire subtrees.
+            // Reverse the node index. Here, we need traverse nodes bottom-up.
+            nodeForSum = treeSize - i - 1;
+            parentForSum = parents[nodeForSum];
+            // Update myself.
+            preL_to_sumDelCost[nodeForSum] += costModel->deleteCost(preL_to_node[nodeForSum]);
+            preL_to_sumInsCost[nodeForSum] += costModel->insertCost(preL_to_node[nodeForSum]);
+            if (parentForSum > -1) {
+                // Update my parent.
+                preL_to_sumDelCost[parentForSum] += preL_to_sumDelCost[nodeForSum];
+                preL_to_sumInsCost[parentForSum] += preL_to_sumInsCost[nodeForSum];
+            }
+        }
+
+        currentLeaf = -1;
+        // [TODO] Merge with the other loop. Assume different traversal.
+        for(int i = 0; i < sizes[0]; i++) {
+            preR_to_ln[i] = currentLeaf;
+            if(isLeaf(preR_to_preL[i])) {
+                currentLeaf = i;
+            }
+        }
+    }
+
+public:
+    NodeIndexer(N* inputTree, const CostModel<NodeData>* costModel)
+    : costModel(costModel)
+    , treeSize(inputTree->getNodeCount()) {
+        // Initialize tmp variables
+        currentNode = 0;
+        lchl = 0;
+        rchl = 0;
+        sizeTmp = 0;
+        descSizesTmp = 0;
+        krSizesSumTmp = 0;
+        revkrSizesSumTmp = 0;
+        preorderTmp = 0;
+
+        // Initialize indices
+        sizes.resize(treeSize, 0);
+        children.resize(treeSize);
+        parents.resize(treeSize, 0); parents[0] = -1; // Root has no parent
+
+        postL_to_lld.resize(treeSize, 0);
+        postR_to_rld.resize(treeSize, 0);
+        preL_to_ln.resize(treeSize, 0);
+        preR_to_ln.resize(treeSize, 0);
+
+        preL_to_node.resize(treeSize, nullptr);
+        nodeType_L.resize(treeSize, false);
+        nodeType_R.resize(treeSize, false);
+
+        preL_to_preR.resize(treeSize, 0);
+        preR_to_preL.resize(treeSize, 0);
+        preL_to_postL.resize(treeSize, 0);
+        preL_to_postR.resize(treeSize, 0);
+        postL_to_preL.resize(treeSize, 0);
+        postR_to_preL.resize(treeSize, 0);
+
+        preL_to_kr_sum.resize(treeSize, 0);
+        preL_to_rev_kr_sum.resize(treeSize, 0);
+        preL_to_desc_sum.resize(treeSize, 0);
+        preL_to_sumDelCost.resize(treeSize, 0.0f);
+        preL_to_sumInsCost.resize(treeSize, 0.0f);
+
+        // Index
+        indexNodes(inputTree, -1);
+        postTraversalIndexing();
+    }
+
+    int getSize() {
+        return treeSize;
+    }
+
+    int preL_to_lld(int preL) {
+        return postL_to_preL[postL_to_lld[preL_to_postL[preL]]];
+    }
+
+    int preL_to_rld(int preL) {
+        return postR_to_preL[postR_to_rld[preL_to_postR[preL]]];
+    }
+
+    Node<NodeData> postL_to_node(int postL) {
+        return preL_to_node[postL_to_preL[postL]];
+    }
+
+    Node<NodeData> postR_to_node(int postR) {
+        return preL_to_node[postR_to_preL[postR]];
+    }
+
+    bool isLeaf(int nodeId) {
+        return sizes[nodeId] == 1;
+    }
+
+    int getCurrentNode() const {
+        return currentNode;
+    }
+
+    void setCurrentNode(int preorder) {
+        currentNode = preorder;
+    }
+
+    void dump() {
+        #include <iostream>
+        using std::cerr;
+        using std::endl;
+
+        cerr << std::string(80, '-') << endl;
+        cerr << "sizes: "              << arrayToString(sizes)              << endl;
+        cerr << "preL_to_preR: "       << arrayToString(preL_to_preR)       << endl;
+        cerr << "preR_to_preL: "       << arrayToString(preR_to_preL)       << endl;
+        cerr << "preL_to_postL: "      << arrayToString(preL_to_postL)      << endl;
+        cerr << "postL_to_preL: "      << arrayToString(postL_to_preL)      << endl;
+        cerr << "preL_to_postR: "      << arrayToString(preL_to_postR)      << endl;
+        cerr << "postR_to_preL: "      << arrayToString(postR_to_preL)      << endl;
+        cerr << "postL_to_lld: "       << arrayToString(postL_to_lld)       << endl;
+        cerr << "postR_to_rld: "       << arrayToString(postR_to_rld)       << endl;
+        cerr << "preL_to_node: "       << arrayToString(preL_to_node)       << endl;
+        cerr << "preL_to_ln: "         << arrayToString(preL_to_ln)         << endl;
+        cerr << "preR_to_ln: "         << arrayToString(preR_to_ln)         << endl;
+        cerr << "preL_to_kr_sum: "     << arrayToString(preL_to_kr_sum)     << endl;
+        cerr << "preL_to_rev_kr_sum: " << arrayToString(preL_to_rev_kr_sum) << endl;
+        cerr << "preL_to_desc_sum: "   << arrayToString(preL_to_desc_sum)   << endl;
+        cerr << "preL_to_sumDelCost: " << arrayToString(preL_to_sumDelCost) << endl;
+        cerr << "preL_to_sumInsCost: " << arrayToString(preL_to_sumInsCost) << endl;
+        cerr << "children: "           << arrayToString(children)           << endl;
+        cerr << "nodeType_L: "         << arrayToString(nodeType_L)         << endl;
+        cerr << "nodeType_R: "         << arrayToString(nodeType_R)         << endl;
+        cerr << "parents: "            << arrayToString(parents)            << endl;
+        cerr << std::string(80, '-') << endl;
+    }
+};
+
+}

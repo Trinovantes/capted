@@ -1,9 +1,9 @@
 #pragma once
 
-#include "capted_Node.h"
-#include "capted_CostModel.h"
-#include "capted_InputParser.h"
-#include "capted_StringDataNode.h"
+#include "node/Node.h"
+#include "distance/AllPossibleMappings.h"
+#include "distance/Capted.h"
 
-#include "capted_AllPossibleMappings.h"
-#include "capted_Capted.h"
+#include "CostModel.h"
+#include "InputParser.h"
+#include "StringDataNode.h"

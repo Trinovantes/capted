@@ -1,18 +1,19 @@
 #pragma once
 
-#include "capted_Node.h"
+#include "node/Node.h"
 
 namespace capted {
 
 //------------------------------------------------------------------------------
-// Parser
+// Cost Model
 //------------------------------------------------------------------------------
 
 template<class NodeData>
-class InputParser {
+class CostModel {
 public:
-    InputParser() { }
-    virtual Node<NodeData>* getRoot() = 0;
+    virtual float deleteCost(Node<NodeData>* n) const = 0;
+    virtual float insertCost(Node<NodeData>* n) const = 0;
+    virtual float renameCost(Node<NodeData>* n1, Node<NodeData>* n2) const = 0;
 };
 
 } // namespace capted

@@ -1,22 +1,22 @@
 #pragma once
 
-#include "capted_TreeEditDistance.h"
+#include "TreeEditDistance.h"
 
 namespace capted {
 
 //------------------------------------------------------------------------------
-// Distance Algorithm (simple)
+// Distance Algorithm (optimized)
 //------------------------------------------------------------------------------
 
 template<class NodeData>
-class AllPossibleMappings : public TreeEditDistance<NodeData> {
+class Capted : public TreeEditDistance<NodeData> {
 public:
-    AllPossibleMappings(CostModel<NodeData>* costModel) : TreeEditDistance<NodeData>(costModel) {
+    Capted(CostModel<NodeData>* costModel) : TreeEditDistance<NodeData>(costModel) {
 
     }
 
     virtual float computeEditDistance(Node<NodeData>* t1, Node<NodeData>* t2) override {
-
+        return 0xDEADBEEF;
     }
 };
 

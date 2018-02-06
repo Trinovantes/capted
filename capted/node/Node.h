@@ -27,7 +27,7 @@ public:
         }
     }
 
-    int getNodeCount() const  {
+    int getNodeCount() const {
         int sum = 1;
 
         for (Node<NodeData>* c : children) {
@@ -37,7 +37,11 @@ public:
         return sum;
     }
 
-    std::vector<Node<NodeData>*> getChildren() const  {
+    std::vector<Node<NodeData>*> &getChildren() {
+        return children;
+    }
+
+    std::vector<Node<NodeData>*> getChildren() const {
         return children;
     }
 
