@@ -70,7 +70,7 @@ private:
 
         int depth = 0;
         std::stringstream currentChild;
-        for (int i = childrenStart; i < s.size(); i++) {
+        for (size_t i = childrenStart; i < s.size(); i++) {
             switch (s[i]) {
                 case '{': depth++; break;
                 case '}': depth--; break;

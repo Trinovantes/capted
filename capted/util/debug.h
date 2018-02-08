@@ -20,7 +20,7 @@ std::string arrayToString(std::vector<T> array) {
     std::stringstream ss;
     ss << "[";
 
-    for (int i = 0; i < array.size(); i++) {
+    for (size_t i = 0; i < array.size(); i++) {
         if (i > 0) {
             ss << ", ";
         }
@@ -41,7 +41,7 @@ std::string arrayToString(std::vector<bool> array) {
     std::stringstream ss;
     ss << "[";
 
-    for (int i = 0; i < array.size(); i++) {
+    for (size_t i = 0; i < array.size(); i++) {
         if (i > 0) {
             ss << ", ";
         }
@@ -66,7 +66,7 @@ std::string arrayToString(std::vector<typename std::vector<T>> nestedArray) {
     std::stringstream ss;
     ss << "[";
 
-    for (int i = 0; i < nestedArray.size(); i++) {
+    for (size_t i = 0; i < nestedArray.size(); i++) {
         if (i > 0) {
             ss << ", ";
         }
@@ -87,7 +87,7 @@ std::string arrayToString<Node<StringNodeData>*>(std::vector<Node<StringNodeData
     std::stringstream ss;
     ss << "[";
 
-    for (int i = 0; i < array.size(); i++) {
+    for (size_t i = 0; i < array.size(); i++) {
         if (i > 0) {
             ss << ", ";
         }
@@ -108,7 +108,7 @@ std::string arrayToString(std::vector<IntPair> mappings) {
     std::stringstream ss;
     ss << "[";
 
-    for (int i = 0; i < mappings.size(); i++) {
+    for (size_t i = 0; i < mappings.size(); i++) {
         if (i > 0) {
             ss << ", ";
         }
