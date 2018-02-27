@@ -2,7 +2,8 @@
 #include <iomanip>
 #include <fstream>
 #include "includes/json.hpp"
-#include "capted/capted.h"
+#include "Capted.h"
+#include "Tester.h"
 
 using namespace capted;
 using std::cout;
@@ -10,11 +11,15 @@ using std::endl;
 using std::string;
 using json = nlohmann::json;
 
-//------------------------------------------------------------------------------
-// Main
-//------------------------------------------------------------------------------
+Tester::Tester() {
+    // nop
+}
 
-int main(int argc, char const *argv[]) {
+Tester::~Tester() {
+    // nop
+}
+
+void Tester::run() {
     std::ifstream testFile("./tests/correctness_test_cases.json");
     json testCases;
     testFile >> testCases;
@@ -49,6 +54,4 @@ int main(int argc, char const *argv[]) {
         float compDist = algorithm.computeEditDistance(n1, n2);
         cout << std::setw(3) << id << " " << (realDist == compDist ? "pass" : "FAIL") << endl;
     }
-
-    return 0;
 }

@@ -1,18 +1,32 @@
 print-%: ; @echo $*=$($*)
 
 RM       = rm -f
-CXX      = g++
-CXXFLAGS = -g -std=c++11
-EXEC     = test_runner
-HEADERS  = $(shell find capted -name "*.h")
+CXX      = clang++
+CXXFLAGS = -g -Wall -std=c++11 -stdlib=libc++ -MMD -I./lib -I.
+LDFLAGS  = -stdlib=libc++
+HEADERS  = $(shell find lib -name "*.h")
 
-all: $(EXEC)
+SRC_DIR = tests
+BIN_DIR = bin
+SRCS = $(shell find tests -type f -name *.cpp)
+OBJS = $(subst $(SRC_DIR),$(BIN_DIR),$(subst .cpp,.o,$(SRCS)))
+EXEC = $(BIN_DIR)/test_runner
 
-$(EXEC): main.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) main.cpp -o $(EXEC)
+all: $(EXEC) $(BIN_DIR)
+
+$(BIN_DIR):
+	mkdir -p $@
+
+$(EXEC): $(OBJS)
+	$(CXX) $(LDFLAGS) -o $@ $^
+
+$(BIN_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+-include $(OBJ_DIR)/*.d
 
 run: all
-	./test_runner
+	./bin/test_runner
 
 clean:
-	$(RM) $(EXEC) *.o *.d
+	$(RM) $(EXEC) $(BIN_DIR)/*.o $(BIN_DIR)/*.d
