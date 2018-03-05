@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
 #include "../util/debug.h"
 
 namespace capted {
@@ -315,33 +316,29 @@ public:
     }
 
     void dump() {
-        #include <iostream>
-        using std::cerr;
-        using std::endl;
-
-        cerr << std::string(80, '-') << endl;
-        cerr << "sizes: "              << arrayToString(sizes)              << endl;
-        cerr << "preL_to_preR: "       << arrayToString(preL_to_preR)       << endl;
-        cerr << "preR_to_preL: "       << arrayToString(preR_to_preL)       << endl;
-        cerr << "preL_to_postL: "      << arrayToString(preL_to_postL)      << endl;
-        cerr << "postL_to_preL: "      << arrayToString(postL_to_preL)      << endl;
-        cerr << "preL_to_postR: "      << arrayToString(preL_to_postR)      << endl;
-        cerr << "postR_to_preL: "      << arrayToString(postR_to_preL)      << endl;
-        cerr << "postL_to_lld: "       << arrayToString(postL_to_lld)       << endl;
-        cerr << "postR_to_rld: "       << arrayToString(postR_to_rld)       << endl;
-        cerr << "preL_to_node: "       << arrayToString(preL_to_node)       << endl;
-        cerr << "preL_to_ln: "         << arrayToString(preL_to_ln)         << endl;
-        cerr << "preR_to_ln: "         << arrayToString(preR_to_ln)         << endl;
-        cerr << "preL_to_kr_sum: "     << arrayToString(preL_to_kr_sum)     << endl;
-        cerr << "preL_to_rev_kr_sum: " << arrayToString(preL_to_rev_kr_sum) << endl;
-        cerr << "preL_to_desc_sum: "   << arrayToString(preL_to_desc_sum)   << endl;
-        cerr << "preL_to_sumDelCost: " << arrayToString(preL_to_sumDelCost) << endl;
-        cerr << "preL_to_sumInsCost: " << arrayToString(preL_to_sumInsCost) << endl;
-        cerr << "children: "           << arrayToString(children)           << endl;
-        cerr << "nodeType_L: "         << arrayToString(nodeType_L)         << endl;
-        cerr << "nodeType_R: "         << arrayToString(nodeType_R)         << endl;
-        cerr << "parents: "            << arrayToString(parents)            << endl;
-        cerr << std::string(80, '-') << endl;
+        std::cerr << std::string(80, '-') << std::endl;
+        std::cerr << "sizes: "              << arrayToString(sizes)              << std::endl;
+        std::cerr << "preL_to_preR: "       << arrayToString(preL_to_preR)       << std::endl;
+        std::cerr << "preR_to_preL: "       << arrayToString(preR_to_preL)       << std::endl;
+        std::cerr << "preL_to_postL: "      << arrayToString(preL_to_postL)      << std::endl;
+        std::cerr << "postL_to_preL: "      << arrayToString(postL_to_preL)      << std::endl;
+        std::cerr << "preL_to_postR: "      << arrayToString(preL_to_postR)      << std::endl;
+        std::cerr << "postR_to_preL: "      << arrayToString(postR_to_preL)      << std::endl;
+        std::cerr << "postL_to_lld: "       << arrayToString(postL_to_lld)       << std::endl;
+        std::cerr << "postR_to_rld: "       << arrayToString(postR_to_rld)       << std::endl;
+        std::cerr << "preL_to_node: "       << arrayToString(preL_to_node)       << std::endl;
+        std::cerr << "preL_to_ln: "         << arrayToString(preL_to_ln)         << std::endl;
+        std::cerr << "preR_to_ln: "         << arrayToString(preR_to_ln)         << std::endl;
+        std::cerr << "preL_to_kr_sum: "     << arrayToString(preL_to_kr_sum)     << std::endl;
+        std::cerr << "preL_to_rev_kr_sum: " << arrayToString(preL_to_rev_kr_sum) << std::endl;
+        std::cerr << "preL_to_desc_sum: "   << arrayToString(preL_to_desc_sum)   << std::endl;
+        std::cerr << "preL_to_sumDelCost: " << arrayToString(preL_to_sumDelCost) << std::endl;
+        std::cerr << "preL_to_sumInsCost: " << arrayToString(preL_to_sumInsCost) << std::endl;
+        std::cerr << "children: "           << arrayToString(children)           << std::endl;
+        std::cerr << "nodeType_L: "         << arrayToString(nodeType_L)         << std::endl;
+        std::cerr << "nodeType_R: "         << arrayToString(nodeType_R)         << std::endl;
+        std::cerr << "parents: "            << arrayToString(parents)            << std::endl;
+        std::cerr << std::string(80, '-') << std::endl;
     }
 };
 

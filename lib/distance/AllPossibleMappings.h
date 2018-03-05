@@ -1,8 +1,6 @@
 #pragma once
 
 #include "TreeEditDistance.h"
-#include "../util/debug.h"
-#include "../util/copy.h"
 
 namespace capted {
 
@@ -47,7 +45,7 @@ private:
         // For each node in the source tree.
         for (int n1 = 0; n1 < this->size1; n1++) {
             // Duplicate all mappings and store in mappings_copy.
-            std::vector<std::vector<IntPair>> mappings_copy = deepCopy(mappings);
+            std::vector<std::vector<IntPair>> mappings_copy = mappings;
             // For each node in the destination tree.
             for (int n2 = 0; n2 < this->size2; n2++) {
                 // For each mapping (produced for all n1 values smaller than
@@ -70,7 +68,7 @@ private:
                     // New mappings must be produced by duplicating a previous
                     // mapping and extending it by (n1, n2).
                     if (element_add) {
-                        std::vector<IntPair> m_copy = deepCopy(m);
+                        std::vector<IntPair> m_copy = m;
                         m_copy.push_back(std::make_pair(n1, n2));
                         // If a pair (n1,n2) is added, (n1,-1) and (-1,n2) must be removed.
                         assert(removeMappingElement(m_copy, std::make_pair(n1, -1)));

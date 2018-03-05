@@ -1,123 +1,44 @@
 #pragma once
 
-#include "../StringDataNode.h"
+#include "../StringNodeData.h"
 #include "../InputParser.h"
-
 #include <iostream>
-using std::cerr;
-using std::endl;
 
 namespace capted {
 
-typedef std::pair<int, int> IntPair;
-
 //------------------------------------------------------------------------------
-// Default
+// arrayToString
 //------------------------------------------------------------------------------
 
 template<typename T>
-std::string arrayToString(std::vector<T> array) {
-    std::stringstream ss;
-    ss << "[";
-
-    for (size_t i = 0; i < array.size(); i++) {
-        if (i > 0) {
-            ss << ", ";
-        }
-
-        ss << array[i];
-    }
-
-    ss << "]";
-    return ss.str();
-}
+std::string arrayToString(std::vector<T> array);
 
 //------------------------------------------------------------------------------
-// Boolean array
+// arrayToString bool
 //------------------------------------------------------------------------------
 
 template<>
-std::string arrayToString(std::vector<bool> array) {
-    std::stringstream ss;
-    ss << "[";
-
-    for (size_t i = 0; i < array.size(); i++) {
-        if (i > 0) {
-            ss << ", ";
-        }
-
-        if (array[i]) {
-            ss << "true";
-        } else {
-            ss << "false";
-        }
-    }
-
-    ss << "]";
-    return ss.str();
-}
+std::string arrayToString(std::vector<bool> array);
 
 //------------------------------------------------------------------------------
-// Nested int array
+// arrayToString nested
 //------------------------------------------------------------------------------
 
 template<typename T>
-std::string arrayToString(std::vector<typename std::vector<T>> nestedArray) {
-    std::stringstream ss;
-    ss << "[";
-
-    for (size_t i = 0; i < nestedArray.size(); i++) {
-        if (i > 0) {
-            ss << ", ";
-        }
-
-        ss << arrayToString(nestedArray[i]);
-    }
-
-    ss << "]";
-    return ss.str();
-}
+std::string arrayToString(std::vector<typename std::vector<T>> nestedArray);
 
 //------------------------------------------------------------------------------
-// String node array
+// arrayToString StringNodeData
 //------------------------------------------------------------------------------
 
 template<>
-std::string arrayToString<Node<StringNodeData>*>(std::vector<Node<StringNodeData>*> array) {
-    std::stringstream ss;
-    ss << "[";
-
-    for (size_t i = 0; i < array.size(); i++) {
-        if (i > 0) {
-            ss << ", ";
-        }
-
-        ss << *array[i];
-    }
-
-    ss << "]";
-    return ss.str();
-}
+std::string arrayToString<Node<StringNodeData>*>(std::vector<Node<StringNodeData>*> array);
 
 //------------------------------------------------------------------------------
-// Mappings
+// arrayToString std::pair
 //------------------------------------------------------------------------------
 
-template<>
-std::string arrayToString(std::vector<IntPair> mappings) {
-    std::stringstream ss;
-    ss << "[";
-
-    for (size_t i = 0; i < mappings.size(); i++) {
-        if (i > 0) {
-            ss << ", ";
-        }
-
-        ss << mappings[i].first << ":" << mappings[i].second;
-    }
-
-    ss << "]" << endl;
-    return ss.str();
-}
+template<typename T1, typename T2>
+std::string arrayToString(std::vector<std::pair<T1, T2>> mappings);
 
 } // namespace capted

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include "InputParser.h"
+#include "CostModel.h"
 
 namespace capted {
 
@@ -16,18 +17,20 @@ private:
     std::string label;
 
 public:
+    friend std::ostream &operator<<(std::ostream &os, StringNodeData const &stringNode);
+
     StringNodeData(std::string label) : label(label) { }
     std::string getLabel() const { return label; }
 };
 
-std::ostream &operator<<(std::ostream &os, StringNodeData const &stringNodeData) {
-    os << stringNodeData.getLabel();
+inline std::ostream &operator<<(std::ostream &os, StringNodeData const &stringNode) {
+    os << stringNode.getLabel();
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, Node<StringNodeData> const &node) {
+inline std::ostream &operator<<(std::ostream &os, Node<StringNodeData> const &node) {
     os << "{";
-    os << node.getNodeData()->getLabel();
+    os << *node.getNodeData();
     for (Node<StringNodeData>* child : node.getChildren()) {
         os << *child;
     }

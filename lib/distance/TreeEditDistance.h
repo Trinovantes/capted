@@ -2,13 +2,14 @@
 
 #include "../CostModel.h"
 #include "../node/NodeIndexer.h"
-#include "../util/debug.h"
 
 namespace capted {
 
 //------------------------------------------------------------------------------
 // Distance Algorithm
 //------------------------------------------------------------------------------
+
+typedef std::pair<int, int> IntPair;
 
 template<class NodeData>
 class TreeEditDistance {

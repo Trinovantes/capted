@@ -6,4 +6,4 @@
 
 #include "CostModel.h"
 #include "InputParser.h"
-#include "StringDataNode.h"
+#include "StringNodeData.h"
