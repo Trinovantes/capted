@@ -112,7 +112,7 @@ private:
 
         // Loop over children of a node.
         std::vector<N*> &childNodes = node->getChildren();
-        for (int i = 0; i < childNodes.size(); i++) {
+        for (unsigned int i = 0; i < childNodes.size(); i++) {
             childrenCount++;
             currentPreorder = preorderTmp;
             parents[currentPreorder] = preorder;
