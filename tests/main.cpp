@@ -19,11 +19,8 @@ int main(int argc, char const *argv[]) {
     json testCases;
     testFile >> testCases;
 
-    StringCostModel costModel;
-    AllPossibleMappings<StringNodeData> algorithm(&costModel);
-
     std::vector<int> testsToRun = {};
-    std::vector<int> testsToSkip = {64, 71};
+    std::vector<int> testsToSkip = {}; // {64, 71} are really slow without APTED algorithm
 
     for (json test : testCases) {
         int id = test["testID"];
@@ -41,12 +38,17 @@ int main(int argc, char const *argv[]) {
             continue;
         }
 
+        StringCostModel costModel;
+        Capted<StringNodeData> algorithm(&costModel);
         BracketStringInputParser p1(t1);
         BracketStringInputParser p2(t2);
         Node<StringNodeData>* n1 = p1.getRoot();
         Node<StringNodeData>* n2 = p2.getRoot();
 
         float compDist = algorithm.computeEditDistance(n1, n2);
-        cout << std::setw(3) << id << " " << (realDist == compDist ? "pass" : "FAIL") << endl;
+        cout << std::setw(3) << id << " " << (realDist == compDist ? "✓" : "FAIL") << endl;
+
+        delete n1;
+        delete n2;
     }
 }

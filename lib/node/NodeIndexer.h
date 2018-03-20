@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <iostream>
-#include "../util/debug.h"
+#include "util/debug.h"
 
 namespace capted {
 
@@ -295,11 +295,11 @@ public:
         return postR_to_preL[postR_to_rld[preL_to_postR[preL]]];
     }
 
-    Node<NodeData> postL_to_node(int postL) {
+    Node<NodeData>* postL_to_node(int postL) {
         return preL_to_node[postL_to_preL[postL]];
     }
 
-    Node<NodeData> postR_to_node(int postR) {
+    Node<NodeData>* postR_to_node(int postR) {
         return preL_to_node[postR_to_preL[postR]];
     }
 

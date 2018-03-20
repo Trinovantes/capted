@@ -8,7 +8,7 @@ namespace capted {
 // Helpers
 //------------------------------------------------------------------------------
 
-static bool removeMappingElement(std::vector<IntPair> &mapping, IntPair pair) {
+static inline bool removeMappingElement(std::vector<IntPair> &mapping, IntPair pair) {
     auto iter = std::remove_if(mapping.begin(), mapping.end(), [&pair](IntPair p) -> bool {
         return (p.first  == pair.first &&
                 p.second == pair.second);

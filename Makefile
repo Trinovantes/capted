@@ -10,6 +10,7 @@ SRC_DIR = .
 BIN_DIR = bin
 SRCS = $(shell find $(SRC_DIR) -type f -name *.cpp)
 OBJS = $(subst $(SRC_DIR)/,$(BIN_DIR)/, $(subst .cpp,.o,$(SRCS)))
+DEPS = $(subst .o,.d,$(OBJS))
 EXEC = $(BIN_DIR)/test_runner
 
 all: $(EXEC)
@@ -21,7 +22,7 @@ $(BIN_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
--include $(BIN_DIR)/*.d
+-include $(DEPS)
 
 run: all
 	./bin/test_runner

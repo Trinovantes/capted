@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../CostModel.h"
-#include "../node/NodeIndexer.h"
+#include "CostModel.h"
+#include "node/NodeIndexer.h"
 
 namespace capted {
 
