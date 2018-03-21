@@ -14,7 +14,7 @@ namespace capted {
 
 template<typename T>
 static inline void fillArray(std::vector<T> &array, T val) {
-    for (int i = 0; i < array.size(); i++) {
+    for (size_t i = 0; i < array.size(); i++) {
         array[i] = val;
     }
 }
@@ -108,11 +108,11 @@ private:
         int subtreeSize2 = it2->sizes[currentSubtreePreL2];
         int subtreeSize1 = it1->sizes[currentSubtreePreL1];
         std::vector<std::vector<float>> t(subtreeSize2 + 1);
-        for (int i = 0; i < t.size(); i++) {
+        for (size_t i = 0; i < t.size(); i++) {
             t[i].resize(subtreeSize2 + 1);
         }
         std::vector<std::vector<float>> s(subtreeSize1 + 1);
-        for (int i = 0; i < s.size(); i++) {
+        for (size_t i = 0; i < s.size(); i++) {
             s[i].resize(subtreeSize2 + 1);
         }
 
@@ -626,7 +626,7 @@ private:
 
         // Initialise an array to store intermediate distances for subforest pairs.
         std::vector<std::vector<float>> forestdist(it1->sizes[it1->getCurrentNode()] + 1);
-        for (int i = 0; i < forestdist.size(); i++) {
+        for (size_t i = 0; i < forestdist.size(); i++) {
             forestdist[i].resize(it2->sizes[it2->getCurrentNode()] + 1);
         }
 
@@ -746,7 +746,7 @@ private:
 
         // Initialise an array to store intermediate distances for subforest pairs.
         std::vector<std::vector<float>> forestdist(it1->sizes[it1->getCurrentNode()] + 1);
-        for (int i = 0; i < forestdist.size(); i++) {
+        for (size_t i = 0; i < forestdist.size(); i++) {
             forestdist[i].resize(it2->sizes[it2->getCurrentNode()] + 1);
         }
 
@@ -915,7 +915,7 @@ private:
 
         assert(delta.size() == 0);
         delta.resize(size1);
-        for (int i = 0; i < delta.size(); i++) {
+        for (size_t i = 0; i < delta.size(); i++) {
             delta[i].resize(size2);
         }
 
@@ -1150,7 +1150,7 @@ private:
 
         assert(delta.size() == 0);
         delta.resize(size1);
-        for (int i = 0; i < delta.size(); i++) {
+        for (size_t i = 0; i < delta.size(); i++) {
             delta[i].resize(size2);
         }
 
@@ -1360,26 +1360,33 @@ private:
     void tedInit() {
         // Reset the subproblems counter.
         counter = 0L;
+
         // Initialize arrays.
         int maxSize = std::max(this->size1, this->size2) + 1;
+
         // TODO: Move q initialisation to spfA.
         q.resize(maxSize);
+
         // TODO: Do not use fn and ft arrays [1, Section 8.4].
         fn.resize(maxSize + 1);
         ft.resize(maxSize + 1);
+
         // Compute subtree distances without the root nodes when one of subtrees
         // is a single node.
         int sizeX = -1;
         int sizeY = -1;
-        int parentX = -1;
-        int parentY = -1;
+        // int parentX = -1;
+        // int parentY = -1;
+
         // Loop over the nodes in reversed left-to-right preorder.
         for(int x = 0; x < this->size1; x++) {
             sizeX = this->it1->sizes[x];
-            parentX = this->it1->parents[x];
+            // parentX = this->it1->parents[x];
+
             for(int y = 0; y < this->size2; y++) {
                 sizeY = this->it2->sizes[y];
-                parentY = this->it2->parents[y];
+                // parentY = this->it2->parents[y];
+
                 // Set values in delta based on the sums of deletion and insertion
                 // costs. Substract the costs for root nodes.
                 // In this method we don't have to verify the order of the input trees
