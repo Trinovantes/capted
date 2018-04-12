@@ -34,8 +34,8 @@ static inline T signum(T val) {
 // Distance Algorithm (apted)
 //------------------------------------------------------------------------------
 
-template<class NodeData>
-class Capted : public TreeEditDistance<NodeData> {
+template<class Data>
+class Apted : public TreeEditDistance<Data> {
 private:
     static const int LEFT = 0;
     static const int RIGHT = 1;
@@ -65,7 +65,7 @@ private:
         }
     }
 
-    int getStrategyPathType(int pathIDWithPathIDOffset, int pathIDOffset, NodeIndexer<NodeData>* it, int currentRootNodePreL, int currentSubtreeSize) {
+    int getStrategyPathType(int pathIDWithPathIDOffset, int pathIDOffset, NodeIndexer<Data>* it, int currentRootNodePreL, int currentSubtreeSize) {
         if (signum(pathIDWithPathIDOffset) == -1) {
             return LEFT;
         }
@@ -81,9 +81,9 @@ private:
 
     //--------------------------------------------------------------------------
 
-    float spfA(NodeIndexer<NodeData>* it1, NodeIndexer<NodeData>* it2, int pathID, int pathType, bool treesSwapped) {
-        std::vector<Node<NodeData>*> &it2nodes = it2->preL_to_node;
-        Node<NodeData>* lFNode;
+    float spfA(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, int pathID, int pathType, bool treesSwapped) {
+        std::vector<Node<Data>*> &it2nodes = it2->preL_to_node;
+        Node<Data>* lFNode;
         std::vector<int> &it1sizes = it1->sizes;
         std::vector<int> &it2sizes = it2->sizes;
         std::vector<int> &it1parents = it1->parents;
@@ -465,7 +465,7 @@ private:
                         }
 
                         fForestIsTree = rF_in_preL == lF;
-                        Node<NodeData>* rFNode = it1->preL_to_node[rF_in_preL];
+                        Node<Data>* rFNode = it1->preL_to_node[rF_in_preL];
                         sp1spointer = &(s[(rF + 1) - it1PreRoff]);
                         sp2spointer = &(s[rF - it1PreRoff]);
                         sp3spointer = &(s[0]);
@@ -611,7 +611,7 @@ private:
 
     //--------------------------------------------------------------------------
 
-    float spfL(NodeIndexer<NodeData>* it1, NodeIndexer<NodeData>* it2, bool treesSwapped) {
+    float spfL(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, bool treesSwapped) {
         // Initialise the array to store the keyroot nodes in the right-hand input subtree.
         std::vector<int> keyRoots(it2->sizes[it2->getCurrentNode()], -1);
 
@@ -641,7 +641,7 @@ private:
         return forestdist[it1->sizes[it1->getCurrentNode()]][it2->sizes[it2->getCurrentNode()]];
     }
 
-    int computeKeyRoots(NodeIndexer<NodeData>* it2, int subtreeRootNode, int pathID, std::vector<int> &keyRoots, int index) {
+    int computeKeyRoots(NodeIndexer<Data>* it2, int subtreeRootNode, int pathID, std::vector<int> &keyRoots, int index) {
         // The subtreeRootNode is a keyroot node. Add it to keyRoots.
         keyRoots[index] = subtreeRootNode;
 
@@ -669,7 +669,7 @@ private:
         return index;
     }
 
-    void treeEditDist(NodeIndexer<NodeData>* it1, NodeIndexer<NodeData>* it2, int it1subtree, int it2subtree, std::vector<std::vector<float>> &forestdist, bool treesSwapped) {
+    void treeEditDist(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, int it1subtree, int it2subtree, std::vector<std::vector<float>> &forestdist, bool treesSwapped) {
         // Translate input subtree root nodes to left-to-right postorder.
         int i = it1->preL_to_postL[it1subtree];
         int j = it2->preL_to_postL[it2subtree];
@@ -731,7 +731,7 @@ private:
 
     //--------------------------------------------------------------------------
 
-    float spfR(NodeIndexer<NodeData>* it1, NodeIndexer<NodeData>* it2, bool treesSwapped) {
+    float spfR(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, bool treesSwapped) {
         // Initialise the array to store the keyroot nodes in the right-hand input subtree.
         std::vector<int> revKeyRoots(it2->sizes[it2->getCurrentNode()], -1);
 
@@ -762,7 +762,7 @@ private:
         return forestdist[it1->sizes[it1->getCurrentNode()]][it2->sizes[it2->getCurrentNode()]];
     }
 
-    int computeRevKeyRoots(NodeIndexer<NodeData>* it2, int subtreeRootNode, int pathID, std::vector<int> &revKeyRoots, int index) {
+    int computeRevKeyRoots(NodeIndexer<Data>* it2, int subtreeRootNode, int pathID, std::vector<int> &revKeyRoots, int index) {
         // The subtreeRootNode is a keyroot node. Add it to keyRoots.
         revKeyRoots[index] = subtreeRootNode;
 
@@ -790,7 +790,7 @@ private:
         return index;
     }
 
-    void revTreeEditDist(NodeIndexer<NodeData>* it1, NodeIndexer<NodeData>* it2, int it1subtree, int it2subtree, std::vector<std::vector<float>> &forestdist, bool treesSwapped) {
+    void revTreeEditDist(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, int it1subtree, int it2subtree, std::vector<std::vector<float>> &forestdist, bool treesSwapped) {
         // Translate input subtree root nodes to right-to-left postorder.
         int i = it1->preL_to_postR[it1subtree];
         int j = it2->preL_to_postR[it2subtree];
@@ -851,21 +851,21 @@ private:
 
     //--------------------------------------------------------------------------
 
-    float spf1 (NodeIndexer<NodeData>* ni1, int subtreeRootNode1, NodeIndexer<NodeData>* ni2, int subtreeRootNode2) {
+    float spf1 (NodeIndexer<Data>* ni1, int subtreeRootNode1, NodeIndexer<Data>* ni2, int subtreeRootNode2) {
         int subtreeSize1 = ni1->sizes[subtreeRootNode1];
         int subtreeSize2 = ni2->sizes[subtreeRootNode2];
 
         if (subtreeSize1 == 1 && subtreeSize2 == 1) {
-            Node<NodeData>* n1 = ni1->preL_to_node[subtreeRootNode1];
-            Node<NodeData>* n2 = ni2->preL_to_node[subtreeRootNode2];
+            Node<Data>* n1 = ni1->preL_to_node[subtreeRootNode1];
+            Node<Data>* n2 = ni2->preL_to_node[subtreeRootNode2];
             float maxCost = this->costModel->deleteCost(n1) + this->costModel->insertCost(n2);
             float renCost = this->costModel->renameCost(n1, n2);
             return renCost < maxCost ? renCost : maxCost;
         }
 
         if (subtreeSize1 == 1) {
-            Node<NodeData>* n1 = ni1->preL_to_node[subtreeRootNode1];
-            Node<NodeData>* n2 = nullptr;
+            Node<Data>* n1 = ni1->preL_to_node[subtreeRootNode1];
+            Node<Data>* n2 = nullptr;
             float cost = ni2->preL_to_sumInsCost[subtreeRootNode2];
             float maxCost = cost + this->costModel->deleteCost(n1);
             float minRenMinusIns = cost;
@@ -883,8 +883,8 @@ private:
         }
 
         if (subtreeSize2 == 1) {
-            Node<NodeData>* n1 = nullptr;
-            Node<NodeData>* n2 = ni2->preL_to_node[subtreeRootNode2];
+            Node<Data>* n1 = nullptr;
+            Node<Data>* n2 = ni2->preL_to_node[subtreeRootNode2];
 
             float cost = ni1->preL_to_sumDelCost[subtreeRootNode1];
             float maxCost = cost + this->costModel->insertCost(n2);
@@ -1404,7 +1404,7 @@ private:
 
     //--------------------------------------------------------------------------
 
-    float gted(NodeIndexer<NodeData>* it1, NodeIndexer<NodeData>* it2) {
+    float gted(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2) {
         int currentSubtree1 = it1->getCurrentNode();
         int currentSubtree2 = it2->getCurrentNode();
         int subtreeSize1 = it1->sizes[currentSubtree1];
@@ -1484,11 +1484,11 @@ private:
     }
 
 public:
-    Capted(CostModel<NodeData>* costModel) : TreeEditDistance<NodeData>(costModel) {
+    Apted(CostModel<Data>* costModel) : TreeEditDistance<Data>(costModel) {
         // nop
     }
 
-    virtual float computeEditDistance(Node<NodeData>* t1, Node<NodeData>* t2) override {
+    virtual float computeEditDistance(Node<Data>* t1, Node<Data>* t2) override {
         // Index the nodes of both input trees.
         this->init(t1, t2);
 

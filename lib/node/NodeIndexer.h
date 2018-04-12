@@ -44,17 +44,17 @@ template <class NodeData>
 class AllPossibleMappings;
 
 template <class NodeData>
-class Capted;
+class Apted;
 
-template<class NodeData>
+template<class Data>
 class NodeIndexer {
 private:
-    typedef Node<NodeData> N;
+    typedef Node<Data> N;
 
-    friend AllPossibleMappings<NodeData>;
-    friend Capted<NodeData>;
+    friend AllPossibleMappings<Data>;
+    friend Apted<Data>;
 
-    const CostModel<NodeData>* costModel;
+    const CostModel<Data>* costModel;
     const int treeSize;
 
     // Structure indices
@@ -111,7 +111,7 @@ private:
         preorderTmp++;
 
         // Loop over children of a node.
-        std::vector<N*> &childNodes = node->getChildren();
+        std::vector<N*> childNodes = node->getChildrenAsVector();
         for (unsigned int i = 0; i < childNodes.size(); i++) {
             childrenCount++;
             currentPreorder = preorderTmp;
@@ -238,7 +238,7 @@ private:
     }
 
 public:
-    NodeIndexer(N* inputTree, const CostModel<NodeData>* costModel)
+    NodeIndexer(N* inputTree, const CostModel<Data>* costModel)
     : costModel(costModel)
     , treeSize(inputTree->getNodeCount()) {
         // Initialize tmp variables
@@ -295,11 +295,11 @@ public:
         return postR_to_preL[postR_to_rld[preL_to_postR[preL]]];
     }
 
-    Node<NodeData>* postL_to_node(int postL) {
+    Node<Data>* postL_to_node(int postL) {
         return preL_to_node[postL_to_preL[postL]];
     }
 
-    Node<NodeData>* postR_to_node(int postR) {
+    Node<Data>* postR_to_node(int postR) {
         return preL_to_node[postR_to_preL[postR]];
     }
 

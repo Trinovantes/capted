@@ -30,7 +30,7 @@ inline std::ostream &operator<<(std::ostream &os, StringNodeData const &stringNo
 
 inline std::ostream &operator<<(std::ostream &os, Node<StringNodeData> const &node) {
     os << "{";
-    os << *node.getNodeData();
+    os << *node.getData();
     for (Node<StringNodeData>* child : node.getChildren()) {
         os << *child;
     }
@@ -128,7 +128,7 @@ public:
     }
 
     virtual float renameCost(Node<StringNodeData>* n1, Node<StringNodeData>* n2) const override {
-        return (n1->getNodeData()->getLabel() == n2->getNodeData()->getLabel()) ? 0.0f : 1.0f;
+        return (n1->getData()->getLabel() == n2->getData()->getLabel()) ? 0.0f : 1.0f;
     }
 };
 

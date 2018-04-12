@@ -24,8 +24,8 @@ static inline bool removeMappingElement(std::vector<IntPair> &mapping, IntPair p
 // Distance Algorithm (simple - exponential cost)
 //------------------------------------------------------------------------------
 
-template<class NodeData>
-class AllPossibleMappings : public TreeEditDistance<NodeData> {
+template<class Data>
+class AllPossibleMappings : public TreeEditDistance<Data> {
 private:
     std::vector<std::vector<IntPair>> generateAllOneToOneMappings() {
         // Start with an empty mapping - all nodes are deleted or inserted.
@@ -157,11 +157,11 @@ private:
     }
 
 public:
-    AllPossibleMappings(CostModel<NodeData>* costModel) : TreeEditDistance<NodeData>(costModel) {
+    AllPossibleMappings(CostModel<Data>* costModel) : TreeEditDistance<Data>(costModel) {
         // nop
     }
 
-    virtual float computeEditDistance(Node<NodeData>* t1, Node<NodeData>* t2) override {
+    virtual float computeEditDistance(Node<Data>* t1, Node<Data>* t2) override {
         this->init(t1, t2);
         std::vector<std::vector<IntPair>> mappings = generateAllOneToOneMappings();
         removeNonTEDMappings(mappings);

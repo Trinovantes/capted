@@ -8,11 +8,11 @@ namespace capted {
 // Parser
 //------------------------------------------------------------------------------
 
-template<class NodeData>
+template<class Data>
 class InputParser {
 public:
     InputParser() { }
-    virtual Node<NodeData>* getRoot() = 0;
+    virtual Node<Data>* getRoot() = 0;
 };
 
 } // namespace capted

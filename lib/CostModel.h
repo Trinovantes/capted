@@ -8,12 +8,12 @@ namespace capted {
 // Cost Model
 //------------------------------------------------------------------------------
 
-template<class NodeData>
+template<class Data>
 class CostModel {
 public:
-    virtual float deleteCost(Node<NodeData>* n) const = 0;
-    virtual float insertCost(Node<NodeData>* n) const = 0;
-    virtual float renameCost(Node<NodeData>* n1, Node<NodeData>* n2) const = 0;
+    virtual float deleteCost(Node<Data>* n) const = 0;
+    virtual float insertCost(Node<Data>* n) const = 0;
+    virtual float renameCost(Node<Data>* n1, Node<Data>* n2) const = 0;
 };
 
 } // namespace capted

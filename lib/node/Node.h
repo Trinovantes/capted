@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <list>
 #include <functional>
 
 namespace capted {
@@ -9,81 +10,84 @@ namespace capted {
 // Node
 //------------------------------------------------------------------------------
 
-template<class NodeData>
+template<class Data>
 class Node {
 private:
-    NodeData* nodeData;
-    Node<NodeData>* parent;
-
-    std::vector<Node<NodeData>*> children;
-    std::vector<Node<NodeData>*> siblingPre;
-    std::vector<Node<NodeData>*> siblingPost;
+    Data* data;
+    Node<Data>* parent;
+    std::list<Node<Data>*> children;
 
 public:
-    Node(NodeData* nodeData) {
-        setNodeData(nodeData);
-        parent = nullptr;
+    Node(Data* data) : data(data), parent(nullptr) {
+        // nop
     }
 
-    ~Node() {
-        delete nodeData;
+    virtual ~Node() {
+        delete data;
 
-        for (Node<NodeData>* c : children) {
+        for (Node<Data>* c : children) {
             delete c;
         }
+    }
+
+    void giveChildrenToGrandparents(typename std::list<Node<Data>*>::iterator iter) {
+        parent->children.insert(iter, children.begin(), children.end());
+
+        for (Node<Data>* child : children) {
+            child->parent = parent;
+        }
+
+        children.clear();
     }
 
     int getNodeCount() const {
         int sum = 1;
 
-        for (Node<NodeData>* c : children) {
+        for (Node<Data>* c : children) {
             sum += c->getNodeCount();
         }
 
         return sum;
     }
 
-    std::vector<Node<NodeData>*> &getChildren() {
+    std::list<Node<Data>*> &getChildren() {
         return children;
     }
 
-    std::vector<Node<NodeData>*> getChildren() const {
+    std::list<Node<Data>*> getChildren() const {
         return children;
     }
 
-    void addChild(Node<NodeData>* child) {
+    std::vector<Node<Data>*> getChildrenAsVector() const {
+        return std::vector<Node<Data>*>(children.begin(), children.end());
+    }
+
+    Node<Data>* getParent() {
+        return parent;
+    }
+
+    void setParent(Node<Data>* parent) {
+        assert(this->parent == nullptr);
+        this->parent = parent;
+    }
+
+    void addChild(Node<Data>* child) {
         assert(child);
         assert(!child->parent);
-        child->parent = this;
 
-        children.insert(children.end(), child->siblingPre.begin(), child->siblingPre.end());
+        child->setParent(this);
         children.push_back(child);
-        children.insert(children.end(), child->siblingPost.begin(), child->siblingPost.end());
     }
 
-    void addSiblingPre(Node<NodeData>* sibiling) {
-        assert(!parent);
-        siblingPre.push_back(sibiling);
+    Data* getData() const {
+        return data;
     }
 
-    void addSiblingPost(Node<NodeData>* sibiling) {
-        assert(!parent);
-        siblingPost.push_back(sibiling);
-    }
+    void dfs(std::function<void(Node<Data>* currentNode, int depth)> callback, int depth = 0) {
+        callback(this, depth);
 
-    NodeData* getNodeData() const {
-        return nodeData;
-    }
-
-    void setNodeData(NodeData* nodeData)  {
-        this->nodeData = nodeData;
-    }
-
-    void dfs(int depth, std::function<void(NodeData* currentNode, int depth)> callback) {
-        callback(getNodeData(), depth);
-
-        for (auto &child : getChildren()) {
-            child->dfs(depth + 1, callback);
+        for (Node<Data>* child : children) {
+            child->dfs(callback, depth + 1);
         }
     }
 };

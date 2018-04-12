@@ -14,7 +14,7 @@ using json = nlohmann::json;
 // Main
 //------------------------------------------------------------------------------
 
-int main(int argc, char const *argv[]) {
+void testEditDistance() {
     std::ifstream testFile("./tests/correctness_test_cases.json");
     json testCases;
     testFile >> testCases;
@@ -39,7 +39,7 @@ int main(int argc, char const *argv[]) {
         }
 
         StringCostModel costModel;
-        Capted<StringNodeData> algorithm(&costModel);
+        Apted<StringNodeData> algorithm(&costModel);
         BracketStringInputParser p1(t1);
         BracketStringInputParser p2(t2);
         Node<StringNodeData>* n1 = p1.getRoot();
@@ -51,4 +51,8 @@ int main(int argc, char const *argv[]) {
         delete n1;
         delete n2;
     }
+}
+
+int main(int argc, char const *argv[]) {
+    testEditDistance();
 }

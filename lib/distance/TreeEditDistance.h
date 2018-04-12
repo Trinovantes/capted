@@ -11,24 +11,24 @@ namespace capted {
 
 typedef std::pair<int, int> IntPair;
 
-template<class NodeData>
+template<class Data>
 class TreeEditDistance {
 protected:
-    NodeIndexer<NodeData>* it1;
-    NodeIndexer<NodeData>* it2;
+    NodeIndexer<Data>* it1;
+    NodeIndexer<Data>* it2;
     int size1;
     int size2;
-    const CostModel<NodeData>* costModel;
+    const CostModel<Data>* costModel;
 
-    void init(Node<NodeData>* t1, Node<NodeData>* t2) {
-        it1 = new NodeIndexer<NodeData>(t1, costModel);
-        it2 = new NodeIndexer<NodeData>(t2, costModel);
+    void init(Node<Data>* t1, Node<Data>* t2) {
+        it1 = new NodeIndexer<Data>(t1, costModel);
+        it2 = new NodeIndexer<Data>(t2, costModel);
         size1 = it1->getSize();
         size2 = it2->getSize();
     }
 
 public:
-    TreeEditDistance(CostModel<NodeData>* costModel) : costModel(costModel) {
+    TreeEditDistance(CostModel<Data>* costModel) : costModel(costModel) {
         it1 = nullptr;
         it2 = nullptr;
         size1 = -1;
@@ -40,7 +40,7 @@ public:
         delete it2;
     }
 
-    virtual float computeEditDistance(Node<NodeData>* t1, Node<NodeData>* t2) = 0;
+    virtual float computeEditDistance(Node<Data>* t1, Node<Data>* t2) = 0;
 };
 
 } // namespace capted
