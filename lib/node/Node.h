@@ -10,6 +10,7 @@ namespace capted {
 // Node
 //------------------------------------------------------------------------------
 
+
 template<class Data>
 class Node {
 private:
@@ -30,8 +31,22 @@ public:
         }
     }
 
-    void giveChildrenToGrandparents(typename std::list<Node<Data>*>::iterator iter) {
-        parent->children.insert(iter, children.begin(), children.end());
+    Node<Data>* clone() {
+        auto copy = new Node<Data>(cloneData(data));
+
+        for (Node<Data>* child : children) {
+            copy->addChild(child->clone());
+        }
+
+        return copy;
+    }
+
+    typename std::list<Node<Data>*>::iterator getMyIter() {
+        return std::find(parent->getChildren().begin(), parent->getChildren().end(), this);
+    }
+
+    void giveChildrenToGrandparents(typename std::list<Node<Data>*>::iterator destIter) {
+        parent->children.insert(destIter, children.begin(), children.end());
 
         for (Node<Data>* child : children) {
             child->parent = parent;
