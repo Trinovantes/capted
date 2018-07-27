@@ -2,7 +2,9 @@
 
 #include <vector>
 #include <list>
+#include <algorithm>
 #include <functional>
+#include <cassert>
 
 namespace capted {
 
