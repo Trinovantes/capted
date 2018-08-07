@@ -12,7 +12,6 @@ namespace capted {
 // Node
 //------------------------------------------------------------------------------
 
-
 template<class Data>
 class Node {
 private:
@@ -77,6 +76,19 @@ public:
 
     std::vector<Node<Data>*> getChildrenAsVector() const {
         return std::vector<Node<Data>*>(children.begin(), children.end());
+    }
+
+    Node<Data>* getIthChild(int i) {
+        assert(i >= 0);
+        assert(i < (int)children.size());
+
+        auto it = children.begin();
+        while (i > 0) {
+            it++;
+            i--;
+        }
+
+        return *it;
     }
 
     Node<Data>* getParent() {
