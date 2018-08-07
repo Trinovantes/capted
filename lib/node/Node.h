@@ -42,7 +42,59 @@ public:
         return copy;
     }
 
-    typename std::list<Node<Data>*>::iterator getMyIter() {
+    void insertChild(typename std::list<Node<Data>*>::iterator destIter, Node<Data>* child) {
+        assert(child);
+        children.insert(destIter, child);
+        child->setParent(this);
+    }
+
+    void removeChild(Node<Data>* child, bool keepGrandChildren = true) {
+        bool madeChange = false;
+
+        auto iter = children.begin();
+        while (iter != children.end()) {
+            if (*iter == child) {
+                assert(!madeChange);
+                iter = children.erase(iter);
+                madeChange = true;
+            } else {
+                iter++;
+            }
+        }
+
+        if (keepGrandChildren) {
+            child->children.clear();
+        }
+
+        assert(madeChange);
+        delete child;
+    }
+
+    void replaceChild(Node<Data>* child, Node<Data>* replacement) {
+        bool madeChange = false;
+
+        auto iter = children.begin();
+        while (iter != children.end()) {
+            if (*iter == child) {
+                assert(!madeChange);
+                *iter = replacement;
+                madeChange = true;
+            }
+
+            iter++;
+        }
+
+        assert(madeChange);
+        delete child;
+    }
+
+    void abandonFirstChild() {
+        Node<Data>* front = children.front();
+        children.pop_front();
+        delete front;
+    }
+
+    typename std::list<Node<Data>*>::iterator getMyIter() const {
         return std::find(parent->getChildren().begin(), parent->getChildren().end(), this);
     }
 
@@ -78,7 +130,7 @@ public:
         return std::vector<Node<Data>*>(children.begin(), children.end());
     }
 
-    Node<Data>* getIthChild(int i) {
+    Node<Data>* getIthChild(int i) const {
         assert(i >= 0);
         assert(i < (int)children.size());
 
