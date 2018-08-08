@@ -32,6 +32,10 @@ public:
         }
     }
 
+    //-------------------------------------------------------------------------
+    // Helpful traversing functions
+    //-------------------------------------------------------------------------
+
     Node<Data>* clone() {
         auto copy = new Node<Data>(cloneData(data));
 
@@ -42,32 +46,23 @@ public:
         return copy;
     }
 
-    void insertChild(typename std::list<Node<Data>*>::iterator destIter, Node<Data>* child) {
-        assert(child);
-        children.insert(destIter, child);
-        child->setParent(this);
-    }
-
-    void removeChild(Node<Data>* child, bool keepGrandChildren = true) {
+    void detachFromParent() {
         bool madeChange = false;
+        std::list<Node<Data>*> &siblings = parent->children;
 
-        auto iter = children.begin();
-        while (iter != children.end()) {
-            if (*iter == child) {
+        auto iter = siblings.begin();
+        while (iter != siblings.end()) {
+            if (*iter == this) {
                 assert(!madeChange);
-                iter = children.erase(iter);
+                iter = siblings.erase(iter);
+                parent = nullptr;
                 madeChange = true;
             } else {
                 iter++;
             }
         }
 
-        if (keepGrandChildren) {
-            child->children.clear();
-        }
-
         assert(madeChange);
-        delete child;
     }
 
     void replaceChild(Node<Data>* child, Node<Data>* replacement) {
@@ -77,7 +72,9 @@ public:
         while (iter != children.end()) {
             if (*iter == child) {
                 assert(!madeChange);
+                assert(!replacement->parent);
                 *iter = replacement;
+                replacement->parent = this;
                 madeChange = true;
             }
 
@@ -85,27 +82,22 @@ public:
         }
 
         assert(madeChange);
-        delete child;
     }
 
-    void abandonFirstChild() {
-        Node<Data>* front = children.front();
-        children.pop_front();
-        delete front;
-    }
-
-    typename std::list<Node<Data>*>::iterator getMyIter() const {
-        return std::find(parent->getChildren().begin(), parent->getChildren().end(), this);
-    }
-
-    void giveChildrenToGrandparents(typename std::list<Node<Data>*>::iterator destIter) {
-        parent->children.insert(destIter, children.begin(), children.end());
+    void dfs(std::function<void(Node<Data>* currentNode, int depth)> callback, int depth = 0) {
+        callback(this, depth);
 
         for (Node<Data>* child : children) {
-            child->parent = parent;
+            child->dfs(callback, depth + 1);
         }
+    }
 
-        children.clear();
+    //-------------------------------------------------------------------------
+    // Getters and setters
+    //-------------------------------------------------------------------------
+
+    Data* getData() const {
+        return data;
     }
 
     int getNodeCount() const {
@@ -116,6 +108,10 @@ public:
         }
 
         return sum;
+    }
+
+    int getNumChildren() const {
+        return children.size();
     }
 
     std::list<Node<Data>*> &getChildren() {
@@ -160,16 +156,16 @@ public:
         children.push_back(child);
     }
 
-    Data* getData() const {
-        return data;
+    typename std::list<Node<Data>*>::iterator insertChild(typename std::list<Node<Data>*>::iterator destIter, Node<Data>* child) {
+        assert(child);
+        assert(!child->parent);
+
+        child->setParent(this);
+        return children.insert(destIter, child);
     }
 
-    void dfs(std::function<void(Node<Data>* currentNode, int depth)> callback, int depth = 0) {
-        callback(this, depth);
-
-        for (Node<Data>* child : children) {
-            child->dfs(callback, depth + 1);
-        }
+    typename std::list<Node<Data>*>::iterator getMyIter() const {
+        return std::find(parent->getChildren().begin(), parent->getChildren().end(), this);
     }
 };
 
