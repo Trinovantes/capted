@@ -2,6 +2,7 @@
 
 #include "CostModel.h"
 #include "node/NodeIndexer.h"
+#include "util/int.h"
 
 namespace capted {
 
@@ -9,15 +10,15 @@ namespace capted {
 // Distance Algorithm
 //------------------------------------------------------------------------------
 
-typedef std::pair<int, int> IntPair;
+typedef std::pair<Integer, Integer> IntPair;
 
 template<class Data>
 class TreeEditDistance {
 protected:
     NodeIndexer<Data>* it1;
     NodeIndexer<Data>* it2;
-    int size1;
-    int size2;
+    Integer size1;
+    Integer size2;
     const CostModel<Data>* costModel;
 
     void init(Node<Data>* t1, Node<Data>* t2) {

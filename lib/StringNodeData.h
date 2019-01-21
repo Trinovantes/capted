@@ -5,6 +5,7 @@
 #include <sstream>
 #include "InputParser.h"
 #include "CostModel.h"
+#include "util/int.h"
 
 namespace capted {
 
@@ -71,7 +72,7 @@ private:
             return children;
         }
 
-        int depth = 0;
+        Integer depth = 0;
         std::stringstream currentChild;
         for (size_t i = childrenStart; i < s.size(); i++) {
             switch (s[i]) {

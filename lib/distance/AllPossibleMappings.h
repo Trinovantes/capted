@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TreeEditDistance.h"
+#include "util/int.h"
 
 namespace capted {
 
@@ -34,20 +35,20 @@ private:
         mappings[0].reserve(this->size1 + this->size2);
 
         // Add all deleted nodes.
-        for (int n1 = 0; n1 < this->size1; n1++) {
+        for (Integer n1 = 0; n1 < this->size1; n1++) {
             mappings[0].push_back(std::make_pair(n1, -1));
         }
         // Add all inserted nodes.
-        for (int n2 = 0; n2 < this->size2; n2++) {
+        for (Integer n2 = 0; n2 < this->size2; n2++) {
             mappings[0].push_back(std::make_pair(-1, n2));
         }
 
         // For each node in the source tree.
-        for (int n1 = 0; n1 < this->size1; n1++) {
+        for (Integer n1 = 0; n1 < this->size1; n1++) {
             // Duplicate all mappings and store in mappings_copy.
             std::vector<std::vector<IntPair>> mappings_copy = mappings;
             // For each node in the destination tree.
-            for (int n2 = 0; n2 < this->size2; n2++) {
+            for (Integer n2 = 0; n2 < this->size2; n2++) {
                 // For each mapping (produced for all n1 values smaller than
                 // current n1).
                 for (std::vector<IntPair> m : mappings_copy) {
