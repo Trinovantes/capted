@@ -13,6 +13,9 @@ OBJS = $(subst $(SRC_DIR)/,$(BIN_DIR)/, $(subst .cpp,.o,$(SRCS)))
 DEPS = $(subst .o,.d,$(OBJS))
 EXEC = $(BIN_DIR)/test_runner
 
+# Uncomment to use int64 instead of int32
+# CXXFLAGS += -DCAPTED_LARGE_TREES
+
 all: $(EXEC)
 
 $(EXEC): $(OBJS)

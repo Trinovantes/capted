@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <functional>
 #include <cassert>
+#include "util/int.h"
 
 namespace capted {
 
@@ -84,7 +85,7 @@ public:
         assert(madeChange);
     }
 
-    void dfs(std::function<void(Node<Data>* currentNode, int depth)> callback, int depth = 0) {
+    void dfs(std::function<void(Node<Data>* currentNode, Integer depth)> callback, Integer depth = 0) {
         callback(this, depth);
 
         for (Node<Data>* child : children) {
@@ -100,8 +101,8 @@ public:
         return data;
     }
 
-    int getNodeCount() const {
-        int sum = 1;
+    Integer getNodeCount() const {
+        Integer sum = 1;
 
         for (Node<Data>* c : children) {
             sum += c->getNodeCount();
@@ -110,7 +111,7 @@ public:
         return sum;
     }
 
-    int getNumChildren() const {
+    Integer getNumChildren() const {
         return children.size();
     }
 
@@ -126,9 +127,9 @@ public:
         return std::vector<Node<Data>*>(children.begin(), children.end());
     }
 
-    Node<Data>* getIthChild(int i) const {
+    Node<Data>* getIthChild(Integer i) const {
         assert(i >= 0);
-        assert(i < (int)children.size());
+        assert(i < (Integer)children.size());
 
         auto it = children.begin();
         while (i > 0) {

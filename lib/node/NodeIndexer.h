@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include "util/debug.h"
+#include "util/int.h"
 
 namespace capted {
 
@@ -55,64 +56,64 @@ private:
     friend Apted<Data>;
 
     const CostModel<Data>* costModel;
-    const int treeSize;
+    const Integer treeSize;
 
     // Structure indices
-    std::vector<int> sizes;
-    std::vector<int> parents;
-    std::vector<std::vector<int>> children;
+    std::vector<Integer> sizes;
+    std::vector<Integer> parents;
+    std::vector<std::vector<Integer>> children;
 
-    std::vector<int> postL_to_lld;
-    std::vector<int> postR_to_rld;
-    std::vector<int> preL_to_ln;
-    std::vector<int> preR_to_ln;
+    std::vector<Integer> postL_to_lld;
+    std::vector<Integer> postR_to_rld;
+    std::vector<Integer> preL_to_ln;
+    std::vector<Integer> preR_to_ln;
 
     std::vector<N*> preL_to_node;
     std::vector<bool> nodeType_L;
     std::vector<bool> nodeType_R;
 
     // Traversal translation indices
-    std::vector<int> preL_to_preR;
-    std::vector<int> preR_to_preL;
-    std::vector<int> preL_to_postL;
-    std::vector<int> preL_to_postR;
-    std::vector<int> postL_to_preL;
-    std::vector<int> postR_to_preL;
+    std::vector<Integer> preL_to_preR;
+    std::vector<Integer> preR_to_preL;
+    std::vector<Integer> preL_to_postL;
+    std::vector<Integer> preL_to_postR;
+    std::vector<Integer> postL_to_preL;
+    std::vector<Integer> postR_to_preL;
 
     // Cost indices
-    std::vector<int> preL_to_kr_sum;
-    std::vector<int> preL_to_rev_kr_sum;
-    std::vector<int> preL_to_desc_sum;
+    std::vector<Integer> preL_to_kr_sum;
+    std::vector<Integer> preL_to_rev_kr_sum;
+    std::vector<Integer> preL_to_desc_sum;
     std::vector<float> preL_to_sumDelCost;
     std::vector<float> preL_to_sumInsCost;
 
     // Temp variables
-    int currentNode;
-    int lchl;
-    int rchl;
-    int sizeTmp;
-    int descSizesTmp;
-    int krSizesSumTmp;
-    int revkrSizesSumTmp;
-    int preorderTmp;
+    Integer currentNode;
+    Integer lchl;
+    Integer rchl;
+    Integer sizeTmp;
+    Integer descSizesTmp;
+    Integer krSizesSumTmp;
+    Integer revkrSizesSumTmp;
+    Integer preorderTmp;
 
-    int indexNodes(N* node, int postorder) {
+    Integer indexNodes(N* node, Integer postorder) {
         // Initialise variables.
-        int currentSize = 0;
-        int childrenCount = 0;
-        int descSizes = 0;
-        int krSizesSum = 0;
-        int revkrSizesSum = 0;
-        int preorder = preorderTmp;
-        int preorderR = 0;
-        int currentPreorder = -1;
+        Integer currentSize = 0;
+        Integer childrenCount = 0;
+        Integer descSizes = 0;
+        Integer krSizesSum = 0;
+        Integer revkrSizesSum = 0;
+        Integer preorder = preorderTmp;
+        Integer preorderR = 0;
+        Integer currentPreorder = -1;
 
         // Store the preorder id of the current node to use it after the recursion.
         preorderTmp++;
 
         // Loop over children of a node.
         std::vector<N*> childNodes = node->getChildrenAsVector();
-        for (unsigned int i = 0; i < childNodes.size(); i++) {
+        for (size_t i = 0; i < childNodes.size(); i++) {
             childrenCount++;
             currentPreorder = preorderTmp;
             parents[currentPreorder] = preorder;
@@ -141,8 +142,15 @@ private:
 
         postorder++;
 
-        int currentDescSizes = descSizes + currentSize + 1;
-        preL_to_desc_sum[preorder] = ((currentSize + 1) * (currentSize + 1 + 3)) / 2 - currentDescSizes;
+        Integer currentDescSizes = descSizes + currentSize + 1;
+
+        Integer temp_mul = (currentSize + 1) * (currentSize + 1 + 3);
+        if (__builtin_mul_overflow((currentSize + 1), (currentSize + 1 + 3), &temp_mul)) {
+            printf("Overflow in %s::%d\n", __FILE__, __LINE__);
+            exit(1);
+        }
+
+        preL_to_desc_sum[preorder] = (temp_mul) / 2 - currentDescSizes;
         preL_to_kr_sum[preorder] = krSizesSum + currentSize + 1;
         preL_to_rev_kr_sum[preorder] = revkrSizesSum + currentSize + 1;
 
@@ -168,11 +176,11 @@ private:
     }
 
     void postTraversalIndexing() {
-        int currentLeaf = -1;
-        int nodeForSum = -1;
-        int parentForSum = -1;
+        Integer currentLeaf = -1;
+        Integer nodeForSum = -1;
+        Integer parentForSum = -1;
 
-        for(int i = 0; i < treeSize; i++) {
+        for(Integer i = 0; i < treeSize; i++) {
             preL_to_ln[i] = currentLeaf;
             if(isLeaf(i)) {
                 currentLeaf = i;
@@ -181,8 +189,8 @@ private:
             // This block stores leftmost leaf descendants for each node
             // indexed in postorder. Used for mapping computation.
             // Added by Victor.
-            int postl = i; // Assume that the for loop iterates postorder.
-            int preorder = postL_to_preL[i];
+            Integer postl = i; // Assume that the for loop iterates postorder.
+            Integer preorder = postL_to_preL[i];
             if (sizes[preorder] == 1) {
                 postL_to_lld[postl] = postl;
             } else {
@@ -193,7 +201,7 @@ private:
             // [TODO] Use postL_to_lld and postR_to_rld instead of APTED.getLLD
             //        and APTED.gerRLD methods, remove these method.
             //        Result: faster lookup of these values.
-            int postr = i; // Assume that the for loop iterates reversed postorder.
+            Integer postr = i; // Assume that the for loop iterates reversed postorder.
             preorder = postR_to_preL[postr];
             if (sizes[preorder] == 1) {
                 postR_to_rld[postr] = postr;
@@ -203,7 +211,7 @@ private:
             // Count lchl and rchl.
             // [TODO] There are no values for parent node.
             if (sizes[i] == 1) {
-                int parent = parents[i];
+                Integer parent = parents[i];
                 if (parent > -1) {
                     if (parent+1 == i) {
                         lchl++;
@@ -229,7 +237,7 @@ private:
 
         currentLeaf = -1;
         // [TODO] Merge with the other loop. Assume different traversal.
-        for(int i = 0; i < sizes[0]; i++) {
+        for(Integer i = 0; i < sizes[0]; i++) {
             preR_to_ln[i] = currentLeaf;
             if(isLeaf(preR_to_preL[i])) {
                 currentLeaf = i;
@@ -283,35 +291,35 @@ public:
         postTraversalIndexing();
     }
 
-    int getSize() {
+    Integer getSize() {
         return treeSize;
     }
 
-    int preL_to_lld(int preL) {
+    Integer preL_to_lld(Integer preL) {
         return postL_to_preL[postL_to_lld[preL_to_postL[preL]]];
     }
 
-    int preL_to_rld(int preL) {
+    Integer preL_to_rld(Integer preL) {
         return postR_to_preL[postR_to_rld[preL_to_postR[preL]]];
     }
 
-    Node<Data>* postL_to_node(int postL) {
+    Node<Data>* postL_to_node(Integer postL) {
         return preL_to_node[postL_to_preL[postL]];
     }
 
-    Node<Data>* postR_to_node(int postR) {
+    Node<Data>* postR_to_node(Integer postR) {
         return preL_to_node[postR_to_preL[postR]];
     }
 
-    bool isLeaf(int nodeId) {
+    bool isLeaf(Integer nodeId) {
         return sizes[nodeId] == 1;
     }
 
-    int getCurrentNode() const {
+    Integer getCurrentNode() const {
         return currentNode;
     }
 
-    void setCurrentNode(int preorder) {
+    void setCurrentNode(Integer preorder) {
         currentNode = preorder;
     }
 

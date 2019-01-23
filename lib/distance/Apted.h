@@ -5,6 +5,7 @@
 #include <stack>
 #include "TreeEditDistance.h"
 #include "util/debug.h"
+#include "util/int.h"
 
 namespace capted {
 
@@ -37,18 +38,18 @@ static inline T signum(T val) {
 template<class Data>
 class Apted : public TreeEditDistance<Data> {
 private:
-    static const int LEFT = 0;
-    static const int RIGHT = 1;
-    static const int INNER = 2;
+    static const Integer LEFT = 0;
+    static const Integer RIGHT = 1;
+    static const Integer INNER = 2;
 
     std::vector<std::vector<float>> delta;
 
     std::vector<float> q;
-    std::vector<int> fn;
-    std::vector<int> ft;
+    std::vector<Integer> fn;
+    std::vector<Integer> ft;
     long counter = 0;
 
-    void updateFnArray(int lnForNode, int node, int currentSubtreePreL) {
+    void updateFnArray(Integer lnForNode, Integer node, Integer currentSubtreePreL) {
         if (lnForNode >= currentSubtreePreL) {
             fn[node] = fn[lnForNode];
             fn[lnForNode] = node;
@@ -58,18 +59,18 @@ private:
         }
     }
 
-    void updateFtArray(int lnForNode, int node) {
+    void updateFtArray(Integer lnForNode, Integer node) {
         ft[node] = lnForNode;
         if(fn[node] > -1) {
             ft[fn[node]] = node;
         }
     }
 
-    int getStrategyPathType(int pathIDWithPathIDOffset, int pathIDOffset, NodeIndexer<Data>* it, int currentRootNodePreL, int currentSubtreeSize) {
+    Integer getStrategyPathType(Integer pathIDWithPathIDOffset, Integer pathIDOffset, NodeIndexer<Data>* it, Integer currentRootNodePreL, Integer currentSubtreeSize) {
         if (signum(pathIDWithPathIDOffset) == -1) {
             return LEFT;
         }
-        int pathID = std::abs(pathIDWithPathIDOffset) - 1;
+        Integer pathID = std::abs(pathIDWithPathIDOffset) - 1;
         if (pathID >= pathIDOffset) {
             pathID = pathID - pathIDOffset;
         }
@@ -81,32 +82,32 @@ private:
 
     //--------------------------------------------------------------------------
 
-    float spfA(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, int pathID, int pathType, bool treesSwapped) {
+    float spfA(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, Integer pathID, Integer pathType, bool treesSwapped) {
         std::vector<Node<Data>*> &it2nodes = it2->preL_to_node;
         Node<Data>* lFNode;
-        std::vector<int> &it1sizes = it1->sizes;
-        std::vector<int> &it2sizes = it2->sizes;
-        std::vector<int> &it1parents = it1->parents;
-        std::vector<int> &it2parents = it2->parents;
-        std::vector<int> &it1preL_to_preR = it1->preL_to_preR;
-        std::vector<int> &it2preL_to_preR = it2->preL_to_preR;
-        std::vector<int> &it1preR_to_preL = it1->preR_to_preL;
-        std::vector<int> &it2preR_to_preL = it2->preR_to_preL;
-        int currentSubtreePreL1 = it1->getCurrentNode();
-        int currentSubtreePreL2 = it2->getCurrentNode();
+        std::vector<Integer> &it1sizes = it1->sizes;
+        std::vector<Integer> &it2sizes = it2->sizes;
+        std::vector<Integer> &it1parents = it1->parents;
+        std::vector<Integer> &it2parents = it2->parents;
+        std::vector<Integer> &it1preL_to_preR = it1->preL_to_preR;
+        std::vector<Integer> &it2preL_to_preR = it2->preL_to_preR;
+        std::vector<Integer> &it1preR_to_preL = it1->preR_to_preL;
+        std::vector<Integer> &it2preR_to_preL = it2->preR_to_preL;
+        Integer currentSubtreePreL1 = it1->getCurrentNode();
+        Integer currentSubtreePreL2 = it2->getCurrentNode();
 
         // Variables to incrementally sum up the forest sizes.
-        int currentForestSize1 = 0;
-        int currentForestSize2 = 0;
-        int tmpForestSize1 = 0;
+        Integer currentForestSize1 = 0;
+        Integer currentForestSize2 = 0;
+        Integer tmpForestSize1 = 0;
 
         // Variables to incrementally sum up the forest cost.
         float currentForestCost1 = 0;
         float currentForestCost2 = 0;
         float tmpForestCost1 = 0;
 
-        int subtreeSize2 = it2->sizes[currentSubtreePreL2];
-        int subtreeSize1 = it1->sizes[currentSubtreePreL1];
+        Integer subtreeSize2 = it2->sizes[currentSubtreePreL2];
+        Integer subtreeSize1 = it1->sizes[currentSubtreePreL1];
         std::vector<std::vector<float>> t(subtreeSize2 + 1);
         for (size_t i = 0; i < t.size(); i++) {
             t[i].resize(subtreeSize2 + 1);
@@ -123,14 +124,14 @@ private:
         float sp1 = 0;
         float sp2 = 0;
         float sp3 = 0;
-        int startPathNode = -1;
-        int endPathNode = pathID;
-        int it1PreLoff = endPathNode;
-        int it2PreLoff = currentSubtreePreL2;
-        int it1PreRoff = it1preL_to_preR[endPathNode];
-        int it2PreRoff = it2preL_to_preR[it2PreLoff];
+        Integer startPathNode = -1;
+        Integer endPathNode = pathID;
+        Integer it1PreLoff = endPathNode;
+        Integer it2PreLoff = currentSubtreePreL2;
+        Integer it1PreRoff = it1preL_to_preR[endPathNode];
+        Integer it2PreRoff = it2preL_to_preR[it2PreLoff];
         // variable declarations which were inside the loops
-        int rFlast,lFlast,endPathNode_in_preR,startPathNode_in_preR,parent_of_endPathNode,parent_of_endPathNode_in_preR,
+        Integer rFlast,lFlast,endPathNode_in_preR,startPathNode_in_preR,parent_of_endPathNode,parent_of_endPathNode_in_preR,
         lFfirst,rFfirst,rGlast,rGfirst,lGfirst,rG_in_preL,rGminus1_in_preL,parent_of_rG_in_preL,lGlast,lF_in_preR,lFSubtreeSize,
         lGminus1_in_preR,parent_of_lG,parent_of_lG_in_preR,rF_in_preL,rFSubtreeSize,
         rGfirst_in_preL;
@@ -147,7 +148,7 @@ private:
 
         // These variables store the id of the source (which array) of looking up
         // elements of the minimum in the recursive formula [1, Figures 12,13].
-        int sp1source,sp3source;
+        Integer sp1source,sp3source;
 
         // Loop A [1, Algorithm 3] - walk up the path.
         while (endPathNode >= currentSubtreePreL1) {
@@ -191,7 +192,7 @@ private:
                 lFlast = rightPart ? endPathNode + 1 : endPathNode;
                 fn[fn.size() - 1] = -1;
 
-                for (int i = currentSubtreePreL2; i < currentSubtreePreL2 + subtreeSize2; i++) {
+                for (Integer i = currentSubtreePreL2; i < currentSubtreePreL2 + subtreeSize2; i++) {
                     fn[i] = -1;
                     ft[i] = -1;
                 }
@@ -201,7 +202,7 @@ private:
                 tmpForestCost1 = currentForestCost1;
 
                 // Loop B [1, Algoritm 3] - for all nodes in G (right-hand input tree).
-                for (int rG = rGfirst; rG >= rGlast; rG--) {
+                for (Integer rG = rGfirst; rG >= rGlast; rG--) {
                     lGfirst = it2preR_to_preL[rG];
                     rG_in_preL = it2preR_to_preL[rG];
                     rGminus1_in_preL = rG <= it2preL_to_preR[currentSubtreePreL2] ? 0x7fffffff : it2preR_to_preL[rG - 1];
@@ -219,14 +220,14 @@ private:
 
                     updateFnArray(it2->preL_to_ln[lGfirst], lGfirst, currentSubtreePreL2);
                     updateFtArray(it2->preL_to_ln[lGfirst], lGfirst);
-                    int rF = rFfirst;
+                    Integer rF = rFfirst;
 
                     // Reset size and cost of the forest in F.
                     currentForestSize1 = tmpForestSize1;
                     currentForestCost1 = tmpForestCost1;
 
                     // Loop C [1, Algorithm 3] - for all nodes to the left of the path node.
-                    for (int lF = lFfirst; lF >= lFlast; lF--) {
+                    for (Integer lF = lFfirst; lF >= lFlast; lF--) {
                         // This if statement fixes rF node.
                         if (lF == lFlast && !rightPart) {
                             rF = rFlast;
@@ -277,7 +278,7 @@ private:
                         }
 
                         // Go to first lG.
-                        int lG = lGfirst;
+                        Integer lG = lGfirst;
 
                         // currentForestSize2++;
                         // sp1, sp2, sp3 -- Done here for the first node in Loop D. It differs for consecutive nodes.
@@ -377,13 +378,13 @@ private:
                             }
                         }
 
-                        for (int lF = lFfirst; lF >= lFlast; lF--) {
+                        for (Integer lF = lFfirst; lF >= lFlast; lF--) {
                             q[lF] = s[lF - it1PreLoff][(parent_of_rG_in_preL + 1) - it2PreLoff];
                         }
                     }
 
                     // TODO: first pointers can be precomputed
-                    for (int lG = lGfirst; lG >= lGlast; lG = ft[lG]) {
+                    for (Integer lG = lGfirst; lG >= lGlast; lG = ft[lG]) {
                         t[lG - it2PreLoff][rG - it2PreRoff] = s[lFlast - it1PreLoff][lG - it2PreLoff];
                     }
                 }
@@ -405,7 +406,7 @@ private:
                 rFlast = it1preL_to_preR[endPathNode];
                 fn[fn.size() - 1] = -1;
 
-                for (int i = currentSubtreePreL2; i < currentSubtreePreL2 + subtreeSize2; i++){
+                for (Integer i = currentSubtreePreL2; i < currentSubtreePreL2 + subtreeSize2; i++){
                     fn[i] = -1;
                     ft[i] = -1;
                 }
@@ -415,11 +416,11 @@ private:
                 tmpForestCost1 = currentForestCost1;
 
                 // Loop B' [1, Algorithm 3] - for all nodes in G.
-                for (int lG = lGfirst; lG >= lGlast; lG--) {
+                for (Integer lG = lGfirst; lG >= lGlast; lG--) {
                     rGfirst = it2preL_to_preR[lG];
                     updateFnArray(it2->preR_to_ln[rGfirst], rGfirst, it2preL_to_preR[currentSubtreePreL2]);
                     updateFtArray(it2->preR_to_ln[rGfirst], rGfirst);
-                    int lF = lFfirst;
+                    Integer lF = lFfirst;
                     lGminus1_in_preR = lG <= currentSubtreePreL2 ? 0x7fffffff : it2preL_to_preR[lG - 1];
                     parent_of_lG = it2parents[lG];
                     parent_of_lG_in_preR = parent_of_lG == -1 ? -1 : it2preL_to_preR[parent_of_lG];
@@ -441,7 +442,7 @@ private:
                     }
 
                     // Loop C' [1, Algorithm 3] - for all nodes to the right of the path node.
-                    for (int rF = rFfirst; rF >= rFlast; rF--) {
+                    for (Integer rF = rFfirst; rF >= rFlast; rF--) {
                         if (rF == rFlast) {
                             lF = lFlast;
                         }
@@ -504,7 +505,7 @@ private:
                             sp2 = q[rF];
                         }
 
-                        int rG = rGfirst;
+                        Integer rG = rGfirst;
                         rGfirst_in_preL = it2preR_to_preL[rGfirst];
                         currentForestSize2++;
 
@@ -589,13 +590,13 @@ private:
                             }
                         }
 
-                        for (int rF = rFfirst; rF >= rFlast; rF--) {
+                        for (Integer rF = rFfirst; rF >= rFlast; rF--) {
                             q[rF] = s[rF - it1PreRoff][(parent_of_lG_in_preR + 1) - it2PreRoff];
                         }
                     }
 
                     // TODO: first pointers can be precomputed
-                    for (int rG = rGfirst; rG >= rGlast; rG = ft[rG]) {
+                    for (Integer rG = rGfirst; rG >= rGlast; rG = ft[rG]) {
                         t[lG - it2PreLoff][rG - it2PreRoff] = s[rFlast - it1PreRoff][rG - it2PreRoff];
                     }
                 }
@@ -613,16 +614,16 @@ private:
 
     float spfL(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, bool treesSwapped) {
         // Initialise the array to store the keyroot nodes in the right-hand input subtree.
-        std::vector<int> keyRoots(it2->sizes[it2->getCurrentNode()], -1);
+        std::vector<Integer> keyRoots(it2->sizes[it2->getCurrentNode()], -1);
 
         // Get the leftmost leaf node of the right-hand input subtree.
-        int pathID = it2->preL_to_lld(it2->getCurrentNode());
+        Integer pathID = it2->preL_to_lld(it2->getCurrentNode());
 
         // Calculate the keyroot nodes in the right-hand input subtree.
         // firstKeyRoot is the index in keyRoots of the first keyroot node that
         // we have to process. We need this index because keyRoots array is larger
         // than the number of keyroot nodes.
-        int firstKeyRoot = computeKeyRoots(it2, it2->getCurrentNode(), pathID, keyRoots, 0);
+        Integer firstKeyRoot = computeKeyRoots(it2, it2->getCurrentNode(), pathID, keyRoots, 0);
 
         // Initialise an array to store intermediate distances for subforest pairs.
         std::vector<std::vector<float>> forestdist(it1->sizes[it1->getCurrentNode()] + 1);
@@ -634,14 +635,14 @@ private:
         // input subtree only the root is the keyroot. Thus, we compute the distance
         // between the left-hand input subtree and all keyroot nodes in the
         // right-hand input subtree.
-        for (int i = firstKeyRoot-1; i >= 0; i--) {
+        for (Integer i = firstKeyRoot-1; i >= 0; i--) {
             treeEditDist(it1, it2, it1->getCurrentNode(), keyRoots[i], forestdist, treesSwapped);
         }
 
         return forestdist[it1->sizes[it1->getCurrentNode()]][it2->sizes[it2->getCurrentNode()]];
     }
 
-    int computeKeyRoots(NodeIndexer<Data>* it2, int subtreeRootNode, int pathID, std::vector<int> &keyRoots, int index) {
+    Integer computeKeyRoots(NodeIndexer<Data>* it2, Integer subtreeRootNode, Integer pathID, std::vector<Integer> &keyRoots, Integer index) {
         // The subtreeRootNode is a keyroot node. Add it to keyRoots.
         keyRoots[index] = subtreeRootNode;
 
@@ -650,13 +651,13 @@ private:
 
         // Walk up the left path starting with the leftmost leaf of subtreeRootNode,
         // until the child of subtreeRootNode.
-        int pathNode = pathID;
+        Integer pathNode = pathID;
 
         while (pathNode > subtreeRootNode) {
-            int parent = it2->parents[pathNode];
+            Integer parent = it2->parents[pathNode];
             // For each sibling to the right of pathNode, execute this method recursively.
             // Each right sibling of pathNode is a keyroot node.
-            for (int child : it2->children[parent]) {
+            for (Integer child : it2->children[parent]) {
                 // Execute computeKeyRoots recursively for the new subtree rooted at child and child's leftmost leaf node.
                 if (child != pathNode) {
                     index = computeKeyRoots(it2, child, it2->preL_to_lld(child), keyRoots, index);
@@ -669,18 +670,18 @@ private:
         return index;
     }
 
-    void treeEditDist(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, int it1subtree, int it2subtree, std::vector<std::vector<float>> &forestdist, bool treesSwapped) {
+    void treeEditDist(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, Integer it1subtree, Integer it2subtree, std::vector<std::vector<float>> &forestdist, bool treesSwapped) {
         // Translate input subtree root nodes to left-to-right postorder.
-        int i = it1->preL_to_postL[it1subtree];
-        int j = it2->preL_to_postL[it2subtree];
+        Integer i = it1->preL_to_postL[it1subtree];
+        Integer j = it2->preL_to_postL[it2subtree];
 
         // We need to offset the node ids for accessing forestdist array which has
         // indices from 0 to subtree size. However, the subtree node indices do not
         // necessarily start with 0.
         // Whenever the original left-to-right postorder id has to be accessed, use
         // i+ioff and j+joff.
-        int ioff = it1->postL_to_lld[i] - 1;
-        int joff = it2->postL_to_lld[j] - 1;
+        Integer ioff = it1->postL_to_lld[i] - 1;
+        Integer joff = it2->postL_to_lld[j] - 1;
 
         // Variables holding costs of each minimum element.
         float da = 0;
@@ -690,16 +691,16 @@ private:
         // Initialize forestdist array with deletion and insertion costs of each
         // relevant subforest.
         forestdist[0][0] = 0;
-        for (int i1 = 1; i1 <= i - ioff; i1++) {
+        for (Integer i1 = 1; i1 <= i - ioff; i1++) {
             forestdist[i1][0] = forestdist[i1 - 1][0] + (treesSwapped ? this->costModel->insertCost(it1->postL_to_node(i1 + ioff)) : this->costModel->deleteCost(it1->postL_to_node(i1 + ioff))); // USE COST MODEL - delete i1.
         }
-        for (int j1 = 1; j1 <= j - joff; j1++) {
+        for (Integer j1 = 1; j1 <= j - joff; j1++) {
             forestdist[0][j1] = forestdist[0][j1 - 1] + (treesSwapped ? this->costModel->deleteCost(it2->postL_to_node(j1 + joff)) : this->costModel->insertCost(it2->postL_to_node(j1 + joff))); // USE COST MODEL - insert j1.
         }
 
         // Fill in the remaining costs.
-        for (int i1 = 1; i1 <= i - ioff; i1++) {
-            for (int j1 = 1; j1 <= j - joff; j1++) {
+        for (Integer i1 = 1; i1 <= i - ioff; i1++) {
+            for (Integer j1 = 1; j1 <= j - joff; j1++) {
                 // Increment the number of subproblems.
                 counter++;
 
@@ -733,16 +734,16 @@ private:
 
     float spfR(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, bool treesSwapped) {
         // Initialise the array to store the keyroot nodes in the right-hand input subtree.
-        std::vector<int> revKeyRoots(it2->sizes[it2->getCurrentNode()], -1);
+        std::vector<Integer> revKeyRoots(it2->sizes[it2->getCurrentNode()], -1);
 
         // Get the rightmost leaf node of the right-hand input subtree.
-        int pathID = it2->preL_to_rld(it2->getCurrentNode());
+        Integer pathID = it2->preL_to_rld(it2->getCurrentNode());
 
         // Calculate the keyroot nodes in the right-hand input subtree.
         // firstKeyRoot is the index in keyRoots of the first keyroot node that
         // we have to process. We need this index because keyRoots array is larger
         // than the number of keyroot nodes.
-        int firstKeyRoot = computeRevKeyRoots(it2, it2->getCurrentNode(), pathID, revKeyRoots, 0);
+        Integer firstKeyRoot = computeRevKeyRoots(it2, it2->getCurrentNode(), pathID, revKeyRoots, 0);
 
         // Initialise an array to store intermediate distances for subforest pairs.
         std::vector<std::vector<float>> forestdist(it1->sizes[it1->getCurrentNode()] + 1);
@@ -754,7 +755,7 @@ private:
         // input subtree only the root is the keyroot. Thus, we compute the distance
         // between the left-hand input subtree and all keyroot nodes in the
         // right-hand input subtree.
-        for (int i = firstKeyRoot - 1; i >= 0; i--) {
+        for (Integer i = firstKeyRoot - 1; i >= 0; i--) {
             revTreeEditDist(it1, it2, it1->getCurrentNode(), revKeyRoots[i], forestdist, treesSwapped);
         }
 
@@ -762,7 +763,7 @@ private:
         return forestdist[it1->sizes[it1->getCurrentNode()]][it2->sizes[it2->getCurrentNode()]];
     }
 
-    int computeRevKeyRoots(NodeIndexer<Data>* it2, int subtreeRootNode, int pathID, std::vector<int> &revKeyRoots, int index) {
+    Integer computeRevKeyRoots(NodeIndexer<Data>* it2, Integer subtreeRootNode, Integer pathID, std::vector<Integer> &revKeyRoots, Integer index) {
         // The subtreeRootNode is a keyroot node. Add it to keyRoots.
         revKeyRoots[index] = subtreeRootNode;
 
@@ -771,13 +772,13 @@ private:
 
         // Walk up the right path starting with the rightmost leaf of
         // subtreeRootNode, until the child of subtreeRootNode.
-        int pathNode = pathID;
+        Integer pathNode = pathID;
 
         while (pathNode > subtreeRootNode) {
-            int parent = it2->parents[pathNode];
+            Integer parent = it2->parents[pathNode];
             // For each sibling to the left of pathNode, execute this method recursively.
             // Each left sibling of pathNode is a keyroot node.
-            for (int child : it2->children[parent]) {
+            for (Integer child : it2->children[parent]) {
                 // Execute computeRevKeyRoots recursively for the new subtree rooted at child and child's rightmost leaf node.
                 if (child != pathNode) {
                     index = computeRevKeyRoots(it2, child, it2->preL_to_rld(child), revKeyRoots, index);
@@ -790,18 +791,18 @@ private:
         return index;
     }
 
-    void revTreeEditDist(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, int it1subtree, int it2subtree, std::vector<std::vector<float>> &forestdist, bool treesSwapped) {
+    void revTreeEditDist(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2, Integer it1subtree, Integer it2subtree, std::vector<std::vector<float>> &forestdist, bool treesSwapped) {
         // Translate input subtree root nodes to right-to-left postorder.
-        int i = it1->preL_to_postR[it1subtree];
-        int j = it2->preL_to_postR[it2subtree];
+        Integer i = it1->preL_to_postR[it1subtree];
+        Integer j = it2->preL_to_postR[it2subtree];
 
         // We need to offset the node ids for accessing forestdist array which has
         // indices from 0 to subtree size. However, the subtree node indices do not
         // necessarily start with 0.
         // Whenever the original right-to-left postorder id has to be accessed, use
         // i+ioff and j+joff.
-        int ioff = it1->postR_to_rld[i] - 1;
-        int joff = it2->postR_to_rld[j] - 1;
+        Integer ioff = it1->postR_to_rld[i] - 1;
+        Integer joff = it2->postR_to_rld[j] - 1;
 
         // Variables holding costs of each minimum element.
         float da = 0;
@@ -811,16 +812,16 @@ private:
         // Initialize forestdist array with deletion and insertion costs of each
         // relevant subforest.
         forestdist[0][0] = 0;
-        for (int i1 = 1; i1 <= i - ioff; i1++) {
+        for (Integer i1 = 1; i1 <= i - ioff; i1++) {
             forestdist[i1][0] = forestdist[i1 - 1][0] + (treesSwapped ? this->costModel->insertCost(it1->postR_to_node(i1 + ioff)) : this->costModel->deleteCost(it1->postR_to_node(i1 + ioff))); // USE COST MODEL - delete i1.
         }
-        for (int j1 = 1; j1 <= j - joff; j1++) {
+        for (Integer j1 = 1; j1 <= j - joff; j1++) {
             forestdist[0][j1] = forestdist[0][j1 - 1] + (treesSwapped ? this->costModel->deleteCost(it2->postR_to_node(j1 + joff)) : this->costModel->insertCost(it2->postR_to_node(j1 + joff))); // USE COST MODEL - insert j1.
         }
 
         // Fill in the remaining costs.
-        for (int i1 = 1; i1 <= i - ioff; i1++) {
-            for (int j1 = 1; j1 <= j - joff; j1++) {
+        for (Integer i1 = 1; i1 <= i - ioff; i1++) {
+            for (Integer j1 = 1; j1 <= j - joff; j1++) {
                 // Increment the number of subproblems.
                 counter++;
 
@@ -851,9 +852,9 @@ private:
 
     //--------------------------------------------------------------------------
 
-    float spf1 (NodeIndexer<Data>* ni1, int subtreeRootNode1, NodeIndexer<Data>* ni2, int subtreeRootNode2) {
-        int subtreeSize1 = ni1->sizes[subtreeRootNode1];
-        int subtreeSize2 = ni2->sizes[subtreeRootNode2];
+    float spf1 (NodeIndexer<Data>* ni1, Integer subtreeRootNode1, NodeIndexer<Data>* ni2, Integer subtreeRootNode2) {
+        Integer subtreeSize1 = ni1->sizes[subtreeRootNode1];
+        Integer subtreeSize2 = ni2->sizes[subtreeRootNode2];
 
         if (subtreeSize1 == 1 && subtreeSize2 == 1) {
             Node<Data>* n1 = ni1->preL_to_node[subtreeRootNode1];
@@ -870,7 +871,7 @@ private:
             float maxCost = cost + this->costModel->deleteCost(n1);
             float minRenMinusIns = cost;
             float nodeRenMinusIns = 0;
-            for (int i = subtreeRootNode2; i < subtreeRootNode2 + subtreeSize2; i++) {
+            for (Integer i = subtreeRootNode2; i < subtreeRootNode2 + subtreeSize2; i++) {
                 n2 = ni2->preL_to_node[i];
                 nodeRenMinusIns = this->costModel->renameCost(n1, n2) - this->costModel->insertCost(n2);
                 if (nodeRenMinusIns < minRenMinusIns) {
@@ -891,7 +892,7 @@ private:
             float minRenMinusDel = cost;
             float nodeRenMinusDel = 0;
 
-            for (int i = subtreeRootNode1; i < subtreeRootNode1 + subtreeSize1; i++) {
+            for (Integer i = subtreeRootNode1; i < subtreeRootNode1 + subtreeSize1; i++) {
                 n1 = ni1->preL_to_node[i];
                 nodeRenMinusDel = this->costModel->renameCost(n1, n2) - this->costModel->deleteCost(n1);
 
@@ -910,8 +911,8 @@ private:
     //--------------------------------------------------------------------------
 
     void computeOptStrategy_postL() {
-        int size1 = this->it1->getSize();
-        int size2 = this->it2->getSize();
+        Integer size1 = this->it1->getSize();
+        Integer size2 = this->it2->getSize();
 
         assert(delta.size() == 0);
         delta.resize(size1);
@@ -925,43 +926,43 @@ private:
         std::vector<float> cost2_L(size2);
         std::vector<float> cost2_R(size2);
         std::vector<float> cost2_I(size2);
-        std::vector<int> cost2_path(size2);
+        std::vector<Integer> cost2_path(size2);
         std::vector<float> leafRow(size2);
-        int pathIDOffset = size1;
+        Integer pathIDOffset = size1;
         float minCost = 0x7fffffffffffffffL;
-        int strategyPath = -1;
+        Integer strategyPath = -1;
 
-        std::vector<int> &pre2size1 = this->it1->sizes;
-        std::vector<int> &pre2size2 = this->it2->sizes;
-        std::vector<int> &pre2descSum1 = this->it1->preL_to_desc_sum;
-        std::vector<int> &pre2descSum2 = this->it2->preL_to_desc_sum;
-        std::vector<int> &pre2krSum1 = this->it1->preL_to_kr_sum;
-        std::vector<int> &pre2krSum2 = this->it2->preL_to_kr_sum;
-        std::vector<int> &pre2revkrSum1 = this->it1->preL_to_rev_kr_sum;
-        std::vector<int> &pre2revkrSum2 = this->it2->preL_to_rev_kr_sum;
-        std::vector<int> &preL_to_preR_1 = this->it1->preL_to_preR;
-        std::vector<int> &preL_to_preR_2 = this->it2->preL_to_preR;
-        std::vector<int> &preR_to_preL_1 = this->it1->preR_to_preL;
-        std::vector<int> &preR_to_preL_2 = this->it2->preR_to_preL;
-        std::vector<int> &pre2parent1 = this->it1->parents;
-        std::vector<int> &pre2parent2 = this->it2->parents;
+        std::vector<Integer> &pre2size1 = this->it1->sizes;
+        std::vector<Integer> &pre2size2 = this->it2->sizes;
+        std::vector<Integer> &pre2descSum1 = this->it1->preL_to_desc_sum;
+        std::vector<Integer> &pre2descSum2 = this->it2->preL_to_desc_sum;
+        std::vector<Integer> &pre2krSum1 = this->it1->preL_to_kr_sum;
+        std::vector<Integer> &pre2krSum2 = this->it2->preL_to_kr_sum;
+        std::vector<Integer> &pre2revkrSum1 = this->it1->preL_to_rev_kr_sum;
+        std::vector<Integer> &pre2revkrSum2 = this->it2->preL_to_rev_kr_sum;
+        std::vector<Integer> &preL_to_preR_1 = this->it1->preL_to_preR;
+        std::vector<Integer> &preL_to_preR_2 = this->it2->preL_to_preR;
+        std::vector<Integer> &preR_to_preL_1 = this->it1->preR_to_preL;
+        std::vector<Integer> &preR_to_preL_2 = this->it2->preR_to_preL;
+        std::vector<Integer> &pre2parent1 = this->it1->parents;
+        std::vector<Integer> &pre2parent2 = this->it2->parents;
         std::vector<bool> &nodeType_L_1 = this->it1->nodeType_L;
         std::vector<bool> &nodeType_L_2 = this->it2->nodeType_L;
         std::vector<bool> &nodeType_R_1 = this->it1->nodeType_R;
         std::vector<bool> &nodeType_R_2 = this->it2->nodeType_R;
 
-        std::vector<int> &preL_to_postL_1 = this->it1->preL_to_postL;
-        std::vector<int> &preL_to_postL_2 = this->it2->preL_to_postL;
-        std::vector<int> &postL_to_preL_1 = this->it1->postL_to_preL;
-        std::vector<int> &postL_to_preL_2 = this->it2->postL_to_preL;
+        std::vector<Integer> &preL_to_postL_1 = this->it1->preL_to_postL;
+        std::vector<Integer> &preL_to_postL_2 = this->it2->preL_to_postL;
+        std::vector<Integer> &postL_to_preL_1 = this->it1->postL_to_preL;
+        std::vector<Integer> &postL_to_preL_2 = this->it2->postL_to_preL;
 
-        int size_w,
+        Integer size_w,
             size_v,
             parent_w_preL,
             parent_v_preL,
             parent_w_postL = -1,
             parent_v_postL = -1;
-        int leftPath_v,
+        Integer leftPath_v,
             rightPath_v;
 
         std::vector<float> cost_Lpointer_v,
@@ -972,17 +973,17 @@ private:
                            cost_Ipointer_parent_v;
         std::vector<float> strategypointer_parent_v;
 
-        int krSum_v, revkrSum_v, descSum_v;
+        Integer krSum_v, revkrSum_v, descSum_v;
         bool is_v_leaf;
 
-        int v_in_preL;
-        int w_in_preL;
+        Integer v_in_preL;
+        Integer w_in_preL;
 
         std::stack<std::vector<float>> rowsToReuse_L;
         std::stack<std::vector<float>> rowsToReuse_R;
         std::stack<std::vector<float>> rowsToReuse_I;
 
-        for(int v = 0; v < size1; v++) {
+        for(Integer v = 0; v < size1; v++) {
             v_in_preL = postL_to_preL_1[v];
 
             is_v_leaf = this->it1->isLeaf(v_in_preL);
@@ -1003,7 +1004,7 @@ private:
                 cost1_L[v] = leafRow;
                 cost1_R[v] = leafRow;
                 cost1_I[v] = leafRow;
-                for(int i = 0; i < size2; i++) {
+                for(Integer i = 0; i < size2; i++) {
                     delta[v_in_preL][postL_to_preL_2[i]] = v_in_preL;
                 }
             }
@@ -1039,9 +1040,9 @@ private:
             fillArray(cost2_L, 0.0f);
             fillArray(cost2_R, 0.0f);
             fillArray(cost2_I, 0.0f);
-            fillArray(cost2_path, 0);
+            fillArray(cost2_path, (Integer)0);
 
-            for(int w = 0; w < size2; w++) {
+            for(Integer w = 0; w < size2; w++) {
                 w_in_preL = postL_to_preL_2[w];
 
                 parent_w_preL = pre2parent2[w_in_preL];
@@ -1077,7 +1078,7 @@ private:
                     tmpCost = (float) size_v * (float) pre2descSum2[w_in_preL] + cost_Ipointer_v[w];
                     if (tmpCost < minCost) {
                         minCost = tmpCost;
-                        strategyPath = (int)delta[v_in_preL][w_in_preL] + 1;
+                        strategyPath = (Integer)delta[v_in_preL][w_in_preL] + 1;
                     }
                     tmpCost = (float) size_w * (float) krSum_v + cost2_L[w];
                     if (tmpCost < minCost) {
@@ -1145,8 +1146,8 @@ private:
     }
 
     void computeOptStrategy_postR() {
-        int size1 = this->it1->getSize();
-        int size2 = this->it2->getSize();
+        Integer size1 = this->it1->getSize();
+        Integer size2 = this->it2->getSize();
 
         assert(delta.size() == 0);
         delta.resize(size1);
@@ -1160,36 +1161,36 @@ private:
         std::vector<float> cost2_L(size2);
         std::vector<float> cost2_R(size2);
         std::vector<float> cost2_I(size2);
-        std::vector<int> cost2_path(size2);
+        std::vector<Integer> cost2_path(size2);
         std::vector<float> leafRow(size2);
-        int pathIDOffset = size1;
+        Integer pathIDOffset = size1;
         float minCost = 0x7fffffffffffffffL;
-        int strategyPath = -1;
+        Integer strategyPath = -1;
 
-        std::vector<int> &pre2size1 = this->it1->sizes;
-        std::vector<int> &pre2size2 = this->it2->sizes;
-        std::vector<int> &pre2descSum1 = this->it1->preL_to_desc_sum;
-        std::vector<int> &pre2descSum2 = this->it2->preL_to_desc_sum;
-        std::vector<int> &pre2krSum1 = this->it1->preL_to_kr_sum;
-        std::vector<int> &pre2krSum2 = this->it2->preL_to_kr_sum;
-        std::vector<int> &pre2revkrSum1 = this->it1->preL_to_rev_kr_sum;
-        std::vector<int> &pre2revkrSum2 = this->it2->preL_to_rev_kr_sum;
-        std::vector<int> &preL_to_preR_1 = this->it1->preL_to_preR;
-        std::vector<int> &preL_to_preR_2 = this->it2->preL_to_preR;
-        std::vector<int> &preR_to_preL_1 = this->it1->preR_to_preL;
-        std::vector<int> &preR_to_preL_2 = this->it2->preR_to_preL;
-        std::vector<int> &pre2parent1 = this->it1->parents;
-        std::vector<int> &pre2parent2 = this->it2->parents;
+        std::vector<Integer> &pre2size1 = this->it1->sizes;
+        std::vector<Integer> &pre2size2 = this->it2->sizes;
+        std::vector<Integer> &pre2descSum1 = this->it1->preL_to_desc_sum;
+        std::vector<Integer> &pre2descSum2 = this->it2->preL_to_desc_sum;
+        std::vector<Integer> &pre2krSum1 = this->it1->preL_to_kr_sum;
+        std::vector<Integer> &pre2krSum2 = this->it2->preL_to_kr_sum;
+        std::vector<Integer> &pre2revkrSum1 = this->it1->preL_to_rev_kr_sum;
+        std::vector<Integer> &pre2revkrSum2 = this->it2->preL_to_rev_kr_sum;
+        std::vector<Integer> &preL_to_preR_1 = this->it1->preL_to_preR;
+        std::vector<Integer> &preL_to_preR_2 = this->it2->preL_to_preR;
+        std::vector<Integer> &preR_to_preL_1 = this->it1->preR_to_preL;
+        std::vector<Integer> &preR_to_preL_2 = this->it2->preR_to_preL;
+        std::vector<Integer> &pre2parent1 = this->it1->parents;
+        std::vector<Integer> &pre2parent2 = this->it2->parents;
         std::vector<bool> &nodeType_L_1 = this->it1->nodeType_L;
         std::vector<bool> &nodeType_L_2 = this->it2->nodeType_L;
         std::vector<bool> &nodeType_R_1 = this->it1->nodeType_R;
         std::vector<bool> &nodeType_R_2 = this->it2->nodeType_R;
 
-        int size_v,
+        Integer size_v,
             size_w,
             parent_v,
             parent_w;
-        int leftPath_v,
+        Integer leftPath_v,
             rightPath_v;
         std::vector<float> cost_Lpointer_v,
                            cost_Rpointer_v,
@@ -1198,7 +1199,7 @@ private:
                            cost_Rpointer_parent_v,
                            cost_Ipointer_parent_v;
         std::vector<float> strategypointer_parent_v;
-        int krSum_v, 
+        Integer krSum_v, 
             revkrSum_v,
             descSum_v;
         bool is_v_leaf;
@@ -1207,7 +1208,7 @@ private:
         std::stack<std::vector<float>> rowsToReuse_R;
         std::stack<std::vector<float>> rowsToReuse_I;
 
-        for(int v = size1 - 1; v >= 0; v--) {
+        for(Integer v = size1 - 1; v >= 0; v--) {
             is_v_leaf = this->it1->isLeaf(v);
             parent_v = pre2parent1[v];
 
@@ -1222,7 +1223,7 @@ private:
                 cost1_L[v] = leafRow;
                 cost1_R[v] = leafRow;
                 cost1_I[v] = leafRow;
-                for (int i = 0; i < size2; i++) {
+                for (Integer i = 0; i < size2; i++) {
                     delta[v][i] = v;
                 }
             }
@@ -1258,9 +1259,9 @@ private:
             fillArray(cost2_L, 0.0f);
             fillArray(cost2_R, 0.0f);
             fillArray(cost2_I, 0.0f);
-            fillArray(cost2_path, 0);
+            fillArray(cost2_path, (Integer)0);
 
-            for (int w = size2 - 1; w >= 0; w--) {
+            for (Integer w = size2 - 1; w >= 0; w--) {
                 size_w = pre2size2[w];
                 if (this->it2->isLeaf(w)) {
                     cost2_L[w] = 0.0f;
@@ -1289,7 +1290,7 @@ private:
                     tmpCost = (float) size_v * (float) pre2descSum2[w] + cost_Ipointer_v[w];
                     if (tmpCost < minCost) {
                         minCost = tmpCost;
-                        strategyPath = (int)delta[v][w] + 1;
+                        strategyPath = (Integer)delta[v][w] + 1;
                     }
                     tmpCost = (float) size_w * (float) krSum_v + cost2_L[w];
                     if (tmpCost < minCost) {
@@ -1362,7 +1363,7 @@ private:
         counter = 0L;
 
         // Initialize arrays.
-        int maxSize = std::max(this->size1, this->size2) + 1;
+        Integer maxSize = std::max(this->size1, this->size2) + 1;
 
         // TODO: Move q initialisation to spfA.
         q.resize(maxSize);
@@ -1373,17 +1374,17 @@ private:
 
         // Compute subtree distances without the root nodes when one of subtrees
         // is a single node.
-        int sizeX = -1;
-        int sizeY = -1;
-        // int parentX = -1;
-        // int parentY = -1;
+        Integer sizeX = -1;
+        Integer sizeY = -1;
+        // Integer parentX = -1;
+        // Integer parentY = -1;
 
         // Loop over the nodes in reversed left-to-right preorder.
-        for(int x = 0; x < this->size1; x++) {
+        for(Integer x = 0; x < this->size1; x++) {
             sizeX = this->it1->sizes[x];
             // parentX = this->it1->parents[x];
 
-            for(int y = 0; y < this->size2; y++) {
+            for(Integer y = 0; y < this->size2; y++) {
                 sizeY = this->it2->sizes[y];
                 // parentY = this->it2->parents[y];
 
@@ -1405,30 +1406,30 @@ private:
     //--------------------------------------------------------------------------
 
     float gted(NodeIndexer<Data>* it1, NodeIndexer<Data>* it2) {
-        int currentSubtree1 = it1->getCurrentNode();
-        int currentSubtree2 = it2->getCurrentNode();
-        int subtreeSize1 = it1->sizes[currentSubtree1];
-        int subtreeSize2 = it2->sizes[currentSubtree2];
+        Integer currentSubtree1 = it1->getCurrentNode();
+        Integer currentSubtree2 = it2->getCurrentNode();
+        Integer subtreeSize1 = it1->sizes[currentSubtree1];
+        Integer subtreeSize2 = it2->sizes[currentSubtree2];
 
         // Use spf1.
         if ((subtreeSize1 == 1 || subtreeSize2 == 1)) {
             return spf1(it1, currentSubtree1, it2, currentSubtree2);
         }
 
-        int strategyPathID = (int)delta[currentSubtree1][currentSubtree2];
+        Integer strategyPathID = (Integer)delta[currentSubtree1][currentSubtree2];
 
-        int strategyPathType = -1;
-        int currentPathNode = std::abs(strategyPathID) - 1;
-        int pathIDOffset = it1->getSize();
+        Integer strategyPathType = -1;
+        Integer currentPathNode = std::abs(strategyPathID) - 1;
+        Integer pathIDOffset = it1->getSize();
 
-        int parent = -1;
+        Integer parent = -1;
         if(currentPathNode < pathIDOffset) {
             strategyPathType = getStrategyPathType(strategyPathID, pathIDOffset, it1, currentSubtree1, subtreeSize1);
             while((parent = it1->parents[currentPathNode]) >= currentSubtree1) {
-                std::vector<int> ai;
-                int k = (ai = it1->children[parent]).size();
-                for(int i = 0; i < k; i++) {
-                    int child = ai[i];
+                std::vector<Integer> ai;
+                Integer k = (ai = it1->children[parent]).size();
+                for(Integer i = 0; i < k; i++) {
+                    Integer child = ai[i];
                     if(child != currentPathNode) {
                         it1->setCurrentNode(child);
                         gted(it1, it2);
@@ -1455,10 +1456,10 @@ private:
         currentPathNode -= pathIDOffset;
         strategyPathType = getStrategyPathType(strategyPathID, pathIDOffset, it2, currentSubtree2, subtreeSize2);
         while((parent = it2->parents[currentPathNode]) >= currentSubtree2) {
-            std::vector<int> ai1;
-            int l = (ai1 = it2->children[parent]).size();
-            for(int j = 0; j < l; j++) {
-                int child = ai1[j];
+            std::vector<Integer> ai1;
+            Integer l = (ai1 = it2->children[parent]).size();
+            for(Integer j = 0; j < l; j++) {
+                Integer child = ai1[j];
                 if(child != currentPathNode) {
                     it2->setCurrentNode(child);
                     gted(it1, it2);
